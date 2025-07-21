@@ -1,0 +1,15 @@
+{
+  "appId": "com.trustdatingoverlay.app",
+  "productName": "Trust Dating Overlay",
+  "directories": {
+    "output": "dist"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "icon.icns"
+  },
+  "win": {
+    "target": "nsis",
+    "icon": "icon.ico"
+  }
+}

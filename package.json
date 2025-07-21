@@ -1,0 +1,41 @@
+{
+  "name": "trust-dating-overlay",
+  "version": "1.0.0",
+  "main": "build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "build-ts": "tsc",
+    "dev": "concurrently \"pnpm next-dev\" \"electron-forge start\"",
+    "next-dev": "next dev renderer",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0",
+    "electron-next": "^3.1.5",
+    "electron-squirrel-startup": "^1.0.1",
+    "next": "^14.0.0",
+    "ollama": "^0.5.16",
+    "puppeteer": "^20.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.3.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.8.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
+    "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron/fuses": "^1.8.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "concurrently": "^8.0.0",
+    "electron": "^37.2.3",
+    "typescript": "^5.0.0"
+  }
+}

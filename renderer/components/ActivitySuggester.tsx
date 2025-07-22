@@ -67,16 +67,17 @@ const ActivitySuggester: React.FC = () => {
   };
 
   return (
-    <div style={{ 
+    <div className="no-drag" style={{ 
       padding: '15px',
       backgroundColor: 'rgba(40, 40, 40, 0.95)',
       borderRadius: '8px',
-      border: '1px solid #555'
+      border: '1px solid #555',
+      fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
-      <h3 style={{ margin: '0 0 15px 0', color: '#fff' }}>Activity Suggestions</h3>
+      <h3 style={{ margin: '0 0 15px 0', color: '#fff', fontFamily: 'inherit' }}>Activity Suggestions</h3>
       
       <div style={{ marginBottom: '15px' }}>
-        <h4 style={{ margin: '0 0 10px 0', color: '#fff', fontSize: '14px' }}>
+        <h4 style={{ margin: '0 0 10px 0', color: '#fff', fontSize: '14px', fontFamily: 'inherit' }}>
           Select Interests:
         </h4>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
@@ -91,7 +92,8 @@ const ActivitySuggester: React.FC = () => {
                 fontSize: '12px',
                 cursor: 'pointer',
                 backgroundColor: selectedInterests.includes(interest) ? '#28a745' : '#555',
-                color: '#fff'
+                color: '#fff',
+                fontFamily: 'inherit'
               }}
             >
               {interest}
@@ -109,7 +111,8 @@ const ActivitySuggester: React.FC = () => {
             color: '#fff',
             border: 'none',
             borderRadius: '4px',
-            cursor: loading || selectedInterests.length === 0 ? 'not-allowed' : 'pointer'
+            cursor: loading || selectedInterests.length === 0 ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit'
           }}
         >
           {loading ? 'Finding Activities...' : 'Get Activity Suggestions'}
@@ -123,7 +126,7 @@ const ActivitySuggester: React.FC = () => {
           borderRadius: '4px',
           border: '1px solid #555'
         }}>
-          <h4 style={{ margin: '0 0 15px 0', color: '#fff' }}>Suggested Activities:</h4>
+          <h4 style={{ margin: '0 0 15px 0', color: '#fff', fontFamily: 'inherit' }}>Suggested Activities:</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {activities.map((activity, index) => (
               <div
@@ -134,7 +137,8 @@ const ActivitySuggester: React.FC = () => {
                   borderRadius: '4px',
                   border: '1px solid #555',
                   color: '#fff',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  fontFamily: 'inherit'
                 }}
               >
                 {activity}

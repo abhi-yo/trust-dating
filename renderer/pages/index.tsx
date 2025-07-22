@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { create } from 'zustand';
-import Overlay from '../components/Overlay';
+import TrustChecker from '../components/TrustChecker';
 import NlpProcessor from '../components/NlpProcessor';
 import ActivitySuggester from '../components/ActivitySuggester';
 
@@ -15,18 +15,51 @@ const useStore = create<Store>((set) => ({
 }));
 
 export default function Home() {
-  const [view, setView] = useState<'trust' | 'activities'>('trust');
+  const [view, setView] = useState<'trust' | 'chat' | 'activities'>('trust');
 
   return (
     <div style={{ 
-      padding: '10px', 
+      padding: '0', 
       background: 'rgba(0,0,0,0.8)', 
       borderRadius: '8px',
       color: 'white',
-      fontFamily: 'Arial, sans-serif',
-      minHeight: '100vh'
+      fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      minHeight: '100vh',
+      position: 'relative'
     }}>
-      <h2 style={{ margin: '0 0 20px 0', textAlign: 'center' }}>Trust & Activities Overlay</h2>
+      {/* Draggable Header */}
+      <div 
+        className="drag-handle"
+        style={{ 
+          background: 'rgba(0, 122, 204, 0.8)',
+          padding: '8px 10px',
+          borderRadius: '8px 8px 0 0',
+          cursor: 'move',
+          userSelect: 'none',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <div style={{ 
+          fontSize: '12px', 
+          fontWeight: '500',
+          fontFamily: 'inherit'
+        }}>
+          Trust & Activities
+        </div>
+        <div style={{ 
+          fontSize: '10px', 
+          opacity: 0.7,
+          fontFamily: 'inherit'
+        }}>
+          Drag to move
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="no-drag" style={{ padding: '15px' }}>
+        <h2 style={{ margin: '0 0 20px 0', textAlign: 'center', fontFamily: 'inherit', fontSize: '18px' }}>Dating Assistant</h2>
       
       <div style={{ 
         display: 'flex', 
@@ -35,6 +68,7 @@ export default function Home() {
         justifyContent: 'center'
       }}>
         <button 
+          className="no-drag"
           onClick={() => setView('trust')}
           style={{
             padding: '8px 16px',
@@ -42,12 +76,31 @@ export default function Home() {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontFamily: 'inherit'
           }}
         >
           Trust Check
         </button>
         <button 
+          className="no-drag"
+          onClick={() => setView('chat')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: view === 'chat' ? '#007acc' : '#333',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontFamily: 'inherit'
+          }}
+        >
+          Chat Analysis
+        </button>
+        <button 
+          className="no-drag"
           onClick={() => setView('activities')}
           style={{
             padding: '8px 16px',
@@ -55,20 +108,19 @@ export default function Home() {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontFamily: 'inherit'
           }}
         >
           Activities
         </button>
       </div>
 
-      {view === 'trust' && <Overlay />}
-      {view === 'activities' && (
-        <>
-          <NlpProcessor />
-          <ActivitySuggester />
-        </>
-      )}
+      {view === 'trust' && <TrustChecker />}
+      {view === 'chat' && <NlpProcessor />}
+      {view === 'activities' && <ActivitySuggester />}
+      </div>
     </div>
   );
 }

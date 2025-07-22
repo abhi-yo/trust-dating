@@ -13,6 +13,8 @@ async function createWindow() {
     transparent: true,
     frame: false,
     alwaysOnTop: true,
+    resizable: true,
+    movable: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,

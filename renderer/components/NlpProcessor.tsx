@@ -49,14 +49,15 @@ Detected interests:
   };
 
   return (
-    <div style={{ 
+    <div className="no-drag" style={{ 
       padding: '15px',
       backgroundColor: 'rgba(40, 40, 40, 0.95)',
       borderRadius: '8px',
       border: '1px solid #555',
-      marginBottom: '15px'
+      marginBottom: '15px',
+      fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
-      <h3 style={{ margin: '0 0 15px 0', color: '#fff' }}>Chat Analysis</h3>
+      <h3 style={{ margin: '0 0 15px 0', color: '#fff', fontFamily: 'inherit' }}>Chat Analysis</h3>
       
       <div style={{ marginBottom: '15px' }}>
         <textarea
@@ -73,7 +74,7 @@ Detected interests:
             color: '#fff',
             marginBottom: '10px',
             resize: 'vertical',
-            fontFamily: 'Arial, sans-serif'
+            fontFamily: 'inherit'
           }}
         />
         <button
@@ -86,7 +87,8 @@ Detected interests:
             color: '#fff',
             border: 'none',
             borderRadius: '4px',
-            cursor: loading || !chatText.trim() ? 'not-allowed' : 'pointer'
+            cursor: loading || !chatText.trim() ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit'
           }}
         >
           {loading ? 'Analyzing...' : 'Extract Interests'}
@@ -100,7 +102,7 @@ Detected interests:
           borderRadius: '4px',
           border: '1px solid #555'
         }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#fff' }}>Detected Interests:</h4>
+          <h4 style={{ margin: '0 0 10px 0', color: '#fff', fontFamily: 'inherit' }}>Detected Interests:</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {interests.map((interest, index) => (
               <span
@@ -110,7 +112,8 @@ Detected interests:
                   color: '#fff',
                   padding: '4px 8px',
                   borderRadius: '4px',
-                  fontSize: '12px'
+                  fontSize: '12px',
+                  fontFamily: 'inherit'
                 }}
               >
                 {interest}

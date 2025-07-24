@@ -13,31 +13,34 @@ const NlpProcessor: React.FC = () => {
 
     setLoading(true);
     try {
-      let result: string;
+      let extractedInterests: string[];
       
       if (typeof window !== 'undefined' && window.electronAPI) {
-        // Use Electron API when available
-        result = await window.electronAPI.processChat(chatText);
+        // Use enhanced conversation analysis API
+        const analysisResult = await window.electronAPI.processChat({
+          conversationId: `nlp_analysis_${Date.now()}`,
+          platform: 'Demo',
+          contact: 'Analysis',
+          newMessage: chatText,
+          sender: 'user',
+          allMessages: []
+        });
+        
+        // Extract interests from keywords and suggestions
+        extractedInterests = [
+          ...analysisResult.analysis.keywords,
+          ...analysisResult.analysis.suggestions.slice(0, 3)
+        ].slice(0, 5);
       } else {
         // Fallback for development/web environment
-        result = `Mock analysis of: "${chatText.substring(0, 50)}..."
-        
-Detected interests:
-- Outdoor activities
-- Food and dining
-- Arts and culture
-- Travel
-- Music`;
+        extractedInterests = [
+          'outdoor activities',
+          'food',
+          'travel',
+          'music',
+          'art'
+        ].filter(() => Math.random() > 0.5); // Random selection for demo
       }
-      
-      // Parse interests from result (simple extraction)
-      const extractedInterests = [
-        'outdoor activities',
-        'food',
-        'travel',
-        'music',
-        'art'
-      ].filter(() => Math.random() > 0.5); // Random selection for demo
       
       setInterests(extractedInterests);
     } catch (error) {

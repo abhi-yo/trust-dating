@@ -20,7 +20,7 @@ let safetyEngine: SafetyEngine | null = null;
 
 // Initialize AI engines
 function initializeAI() {
-  const apiKey = process.env.GEMINI_API_KEY || '***REMOVED***';
+  const apiKey = process.env.GEMINI_API_KEY;
   conversationAnalyzer = new ConversationAnalyzer(apiKey);
   learningEngine = new LearningEngine();
   safetyEngine = new SafetyEngine(apiKey);
@@ -438,7 +438,7 @@ async function createWindow() {
     ipcMain.handle('fetch-activities', async (_event: IpcMainInvokeEvent, interests: string[]) => {
     try {
       // Initialize Gemini AI
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '***REMOVED***');
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
       const prompt = `Based on these interests: ${interests.join(', ')}, suggest 5 specific date activities that would be perfect for someone with these interests. Format each suggestion as a short, actionable activity description. Be creative but practical:
@@ -486,7 +486,7 @@ Return format:
   ipcMain.handle('analyze-trust', async (_event: IpcMainInvokeEvent, profileData: { url?: string, imageFile?: string }) => {
     try {
       // Initialize Gemini AI
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '***REMOVED***');
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
       let prompt = '';

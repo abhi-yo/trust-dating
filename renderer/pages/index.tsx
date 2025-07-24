@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import TrustChecker from '../components/TrustChecker';
 import NlpProcessor from '../components/NlpProcessor';
 import ActivitySuggester from '../components/ActivitySuggester';
+import DesktopFeatures from '../components/DesktopFeatures';
 
 interface Store { 
   interests: string[]; 
@@ -15,7 +16,7 @@ const useStore = create<Store>((set) => ({
 }));
 
 export default function Home() {
-  const [view, setView] = useState<'trust' | 'chat' | 'activities'>('trust');
+  const [view, setView] = useState<'trust' | 'chat' | 'activities' | 'desktop'>('trust');
 
   return (
     <div style={{ 
@@ -63,63 +64,81 @@ export default function Home() {
       
       <div style={{ 
         display: 'flex', 
-        gap: '10px', 
+        gap: '5px', 
         marginBottom: '20px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flexWrap: 'wrap'
       }}>
         <button 
           className="no-drag"
           onClick={() => setView('trust')}
           style={{
-            padding: '8px 16px',
+            padding: '6px 12px',
             backgroundColor: view === 'trust' ? '#007acc' : '#333',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '12px',
+            fontSize: '11px',
             fontFamily: 'inherit'
           }}
         >
-          Trust Check
+          Trust
         </button>
         <button 
           className="no-drag"
           onClick={() => setView('chat')}
           style={{
-            padding: '8px 16px',
+            padding: '6px 12px',
             backgroundColor: view === 'chat' ? '#007acc' : '#333',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '12px',
+            fontSize: '11px',
             fontFamily: 'inherit'
           }}
         >
-          Chat Analysis
+          Chat
         </button>
         <button 
           className="no-drag"
           onClick={() => setView('activities')}
           style={{
-            padding: '8px 16px',
+            padding: '6px 12px',
             backgroundColor: view === 'activities' ? '#007acc' : '#333',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '12px',
+            fontSize: '11px',
             fontFamily: 'inherit'
           }}
         >
           Activities
+        </button>
+        <button 
+          className="no-drag"
+          onClick={() => setView('desktop')}
+          style={{
+            padding: '6px 12px',
+            backgroundColor: view === 'desktop' ? '#007acc' : '#333',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px',
+            fontFamily: 'inherit'
+          }}
+        >
+          Desktop
         </button>
       </div>
 
       {view === 'trust' && <TrustChecker />}
       {view === 'chat' && <NlpProcessor />}
       {view === 'activities' && <ActivitySuggester />}
+      {view === 'desktop' && <DesktopFeatures />}
       </div>
     </div>
   );

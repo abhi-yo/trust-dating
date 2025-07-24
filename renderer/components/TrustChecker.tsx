@@ -7,6 +7,8 @@ interface TrustData {
   socialProfiles: string[];
   trustScore: number;
   verificationStatus: 'verified' | 'suspicious' | 'unknown';
+  redFlags?: string[];
+  positiveSignals?: string[];
 }
 
 const TrustChecker: React.FC = () => {
@@ -23,18 +25,39 @@ const TrustChecker: React.FC = () => {
 
     setLoading(true);
     try {
-      // Simulate trust analysis with mock data
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      let trustAnalysis: TrustData;
       
-      const mockTrustData: TrustData = {
-        imageMatches: selectedImage ? ['Found on Instagram', 'Found on Facebook'] : [],
-        mutualConnections: ['Sarah M.', 'John D.'],
-        socialProfiles: ['Instagram: @username', 'LinkedIn: Professional Profile'],
-        trustScore: Math.floor(Math.random() * 30) + 70, // Random score between 70-100
-        verificationStatus: Math.random() > 0.3 ? 'verified' : 'suspicious'
-      };
+      if (typeof window !== 'undefined' && window.electronAPI) {
+        // Use Electron API with Gemini for real analysis
+        const profileData = {
+          url: profileUrl.trim() || undefined,
+          imageFile: selectedImage?.name
+        };
+        
+        const result = await window.electronAPI.analyzeTrust(profileData);
+        trustAnalysis = {
+          imageMatches: result.imageMatches,
+          mutualConnections: ['Sarah M.', 'John D.'], // Mock mutual connections for demo
+          socialProfiles: result.socialProfiles,
+          trustScore: result.trustScore,
+          verificationStatus: result.verificationStatus as 'verified' | 'suspicious' | 'unknown',
+          redFlags: result.redFlags,
+          positiveSignals: result.positiveSignals
+        };
+      } else {
+        // Fallback for development/web environment
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+        
+        trustAnalysis = {
+          imageMatches: selectedImage ? ['Found on Instagram', 'Found on Facebook'] : [],
+          mutualConnections: ['Sarah M.', 'John D.'],
+          socialProfiles: ['Instagram: @username', 'LinkedIn: Professional Profile'],
+          trustScore: Math.floor(Math.random() * 30) + 70, // Random score between 70-100
+          verificationStatus: Math.random() > 0.3 ? 'verified' : 'suspicious'
+        };
+      }
 
-      setTrustData(mockTrustData);
+      setTrustData(trustAnalysis);
     } catch (error) {
       console.error('Error analyzing profile:', error);
       alert('Error analyzing profile. Please try again.');

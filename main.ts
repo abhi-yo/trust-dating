@@ -484,6 +484,8 @@ Return format:
   // Trust verification handler
   // Enhanced trust analysis with real AI and desktop features
   ipcMain.handle('analyze-trust', async (_event: IpcMainInvokeEvent, profileData: { url?: string, imageFile?: string }) => {
+    console.log('🔍 TRUST ANALYSIS STARTED:', profileData);
+    
     try {
       // Initialize Gemini AI
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -598,7 +600,8 @@ Return JSON with:
         throw new Error('Failed to parse AI response');
       }
     } catch (error) {
-      console.error('Error analyzing trust with Gemini:', error);
+      console.error('❌ TRUST ANALYSIS ERROR:', error);
+      console.error('🔍 Error details:', error.message);
       
       // Enhanced fallback with desktop notification
       notifier.notify({

@@ -16,7 +16,7 @@ const useStore = create<Store>((set) => ({
 }));
 
 export default function Home() {
-  const [view, setView] = useState<'trust' | 'chat' | 'activities' | 'desktop'>('trust');
+  const [view, setView] = useState<'trust' | 'chat' | 'activities' | 'desktop' | 'verification'>('trust');
 
   return (
     <div style={{ 
@@ -87,6 +87,22 @@ export default function Home() {
         </button>
         <button 
           className="no-drag"
+          onClick={() => setView('verification')}
+          style={{
+            padding: '6px 12px',
+            backgroundColor: view === 'verification' ? '#dc3545' : '#333',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px',
+            fontFamily: 'inherit'
+          }}
+        >
+          🔍 Advanced
+        </button>
+        <button 
+          className="no-drag"
           onClick={() => setView('chat')}
           style={{
             padding: '6px 12px',
@@ -136,6 +152,7 @@ export default function Home() {
       </div>
 
       {view === 'trust' && <TrustChecker />}
+      {view === 'verification' && <TrustChecker showAdvanced={true} />}
       {view === 'chat' && <NlpProcessor />}
       {view === 'activities' && <ActivitySuggester />}
       {view === 'desktop' && <DesktopFeatures />}

@@ -24,6 +24,9 @@ requirements.md
 .env.test.local
 .env.production.local
 
+# API Keys and sensitive files
+remove-key.txt
+
 # IDEs
 .vscode/
 .idea/

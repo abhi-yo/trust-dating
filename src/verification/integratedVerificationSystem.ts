@@ -90,7 +90,7 @@ class IntegratedVerificationSystem {
   }
 
   async performComprehensiveVerification(request: VerificationRequest): Promise<ComprehensiveVerificationResult> {
-    console.log('🔍 Starting comprehensive verification analysis...');
+    console.log('Starting comprehensive verification analysis...');
 
     // Initialize result structure
     const result: ComprehensiveVerificationResult = {
@@ -134,7 +134,7 @@ class IntegratedVerificationSystem {
 
     // 1. IMAGE & CATFISH ANALYSIS
     if (request.photos && request.photos.length > 0) {
-      console.log('📸 Analyzing photos for catfish indicators...');
+      console.log('Analyzing photos for catfish indicators...');
       try {
         result.catfish_analysis = await this.catfishDetector.analyzeCatfishRisk(
           request.photos,
@@ -149,7 +149,7 @@ class IntegratedVerificationSystem {
           age_progression_natural: result.catfish_analysis.behavioral_patterns.photo_progression_natural
         };
         
-        console.log(`📊 Catfish risk score: ${result.catfish_analysis.overall_risk_score}%`);
+        console.log(`Catfish risk score: ${result.catfish_analysis.overall_risk_score}%`);
       } catch (error) {
         console.error('Photo analysis failed:', error);
         result.critical_warnings.push('Photo analysis failed - unable to verify image authenticity');
@@ -201,7 +201,7 @@ class IntegratedVerificationSystem {
           request.conversation_messages
         );
         
-        console.log(`🧠 Authenticity score: ${result.behavioral_analysis.authenticity_score}%`);
+        console.log(`Authenticity score: ${result.behavioral_analysis.authenticity_score}%`);
       } catch (error) {
         console.error('Behavioral analysis failed:', error);
         result.critical_warnings.push('Behavioral analysis failed - unable to analyze conversation patterns');
@@ -220,8 +220,8 @@ class IntegratedVerificationSystem {
     // 7. ASSESS IMMEDIATE THREATS
     this.assessImmediateThreats(result);
 
-    console.log(`✅ Verification complete. Overall trust score: ${result.overall_trust_score}%`);
-    console.log(`⚠️  Risk level: ${result.risk_level.toUpperCase()}`);
+    console.log(`Verification complete. Overall trust score: ${result.overall_trust_score}%`);
+    console.log(`Risk level: ${result.risk_level.toUpperCase()}`);
 
     return result;
   }

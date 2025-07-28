@@ -17,6 +17,40 @@ let mainWindow: BrowserWindow | null;
 let conversationAnalyzer: ConversationAnalyzer | null = null;
 let learningEngine: LearningEngine | null = null;
 let safetyEngine: SafetyEngine | null = null;
+let appOpacity: number = 0.85; // Default opacity is 85%
+
+// Function to save opacity setting to disk
+async function saveOpacitySetting(opacity: number) {
+  try {
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+    let settings = {};
+    
+    try {
+      const settingsData = await fs.readFile(settingsPath, 'utf8');
+      settings = JSON.parse(settingsData);
+    } catch (err) {
+      // File doesn't exist yet or is invalid, use empty settings
+    }
+    
+    settings = { ...settings, opacity };
+    await fs.writeFile(settingsPath, JSON.stringify(settings));
+  } catch (error) {
+    console.error('Error saving opacity setting:', error);
+  }
+}
+
+// Function to load opacity setting from disk
+async function loadOpacitySetting(): Promise<number> {
+  try {
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+    const settingsData = await fs.readFile(settingsPath, 'utf8');
+    const settings = JSON.parse(settingsData);
+    return typeof settings.opacity === 'number' ? settings.opacity : 0.85;
+  } catch (error) {
+    // Default to 85% if settings file doesn't exist or is invalid
+    return 0.85;
+  }
+}
 
 // Initialize AI engines
 function initializeAI() {
@@ -29,6 +63,9 @@ function initializeAI() {
 async function createWindow() {
   await prepareNext('./renderer', 3002);  // Use port 3002 for electron-next
   
+  // Load saved opacity setting
+  appOpacity = await loadOpacitySetting();
+  
   // Initialize AI systems
   initializeAI();
 
@@ -40,6 +77,7 @@ async function createWindow() {
     alwaysOnTop: true,
     resizable: true,
     movable: true,
+    opacity: appOpacity,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -462,20 +500,20 @@ Return format:
         .slice(0, 5);
 
       return activities.length > 0 ? activities : [
-        `🎨 Visit a local art gallery or museum (${interests[0] || 'culture'})`,
+        `Visit a local art gallery or museum (${interests[0] || 'culture'})`,
         `☕ Try a specialty coffee shop with unique atmosphere`,
         `🌳 Take a scenic walk or hike in a nearby park`,
-        `🍽️ Explore a restaurant serving cuisine you both haven't tried`,
+        `Explore a restaurant serving cuisine you both haven't tried`,
         `🎵 Check out live music at a local venue`
       ];
     } catch (error) {
       console.error('Error fetching activities with Gemini:', error);
       // Fallback activities based on interests
       return [
-        `🎨 Visit local art gallery (${interests[0] || 'art'})`,
+        `Visit local art gallery (${interests[0] || 'art'})`,
         `☕ Coffee tasting at specialty cafe`,
         `🌳 Nature walk in nearby park`,
-        `🍽️ Try a new restaurant together`,
+        `Try a new restaurant together`,
         `🎵 Attend a live music event`
       ];
     }
@@ -484,7 +522,7 @@ Return format:
   // Trust verification handler
   // Enhanced trust analysis with real AI and desktop features
   ipcMain.handle('analyze-trust', async (_event: IpcMainInvokeEvent, profileData: { url?: string, imageFile?: string }) => {
-    console.log('🔍 TRUST ANALYSIS STARTED:', profileData);
+    console.log('TRUST ANALYSIS STARTED:', profileData);
     
     try {
       // Initialize Gemini AI
@@ -600,8 +638,8 @@ Return JSON with:
         throw new Error('Failed to parse AI response');
       }
     } catch (error) {
-      console.error('❌ TRUST ANALYSIS ERROR:', error);
-      console.error('🔍 Error details:', error.message);
+      console.error('TRUST ANALYSIS ERROR:', error);
+      console.error('Error details:', error.message);
       
       // Enhanced fallback with desktop notification
       notifier.notify({
@@ -625,6 +663,31 @@ Return JSON with:
 
 // Desktop-specific features that web apps cannot provide
 const initializeDesktopFeatures = () => {
+  // Set app transparency/opacity handler
+  ipcMain.handle('set-app-opacity', async (_event, opacity: number) => {
+    try {
+      appOpacity = opacity;
+      
+      // Update window opacity
+      if (mainWindow) {
+        mainWindow.setOpacity(opacity);
+      }
+      
+      // Save to disk
+      await saveOpacitySetting(opacity);
+      
+      return { success: true, opacity };
+    } catch (error) {
+      console.error('Error setting app opacity:', error);
+      return { success: false, error: error.message };
+    }
+  });
+  
+  // Get current app transparency/opacity
+  ipcMain.handle('get-app-opacity', async () => {
+    return { opacity: appOpacity };
+  });
+
   // Auto-capture screenshots for profile verification
   ipcMain.handle('capture-screen', async () => {
     try {
@@ -844,6 +907,40 @@ const initializeDesktopFeatures = () => {
     imageWatcher.close();
     if (systemTray) systemTray.destroy();
   });
+  
+  // App opacity settings
+  ipcMain.handle('set-app-opacity', async (_event, opacity: number) => {
+    try {
+      // Validate opacity value (between 0.2 and 1.0)
+      const validOpacity = Math.max(0.2, Math.min(1.0, opacity));
+      appOpacity = validOpacity;
+      
+      // Update window opacity
+      if (mainWindow) {
+        mainWindow.setOpacity(appOpacity);
+      }
+      
+      // Store the setting for persistence
+      try {
+        const userDataPath = app.getPath('userData');
+        await fs.writeFile(
+          path.join(userDataPath, 'settings.json'), 
+          JSON.stringify({ opacity: appOpacity }, null, 2)
+        );
+      } catch (fileError) {
+        console.error('Failed to save opacity setting:', fileError);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error setting opacity:', error);
+      return { success: false };
+    }
+  });
+  
+  ipcMain.handle('get-app-opacity', async () => {
+    return { opacity: appOpacity };
+  });
 };
 
 // ADVANCED VERIFICATION SYSTEM INTEGRATION
@@ -854,13 +951,36 @@ let verificationSystem: IntegratedVerificationSystem | null = null;
 // Initialize verification system
 function initializeVerificationSystem() {
   verificationSystem = new IntegratedVerificationSystem();
-  console.log('🔍 Advanced Verification System initialized');
+  console.log('Advanced Verification System initialized');
+}
+
+// Load app settings
+async function loadAppSettings() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingsPath = path.join(userDataPath, 'settings.json');
+    
+    try {
+      const settingsData = await fs.readFile(settingsPath, 'utf-8');
+      const settings = JSON.parse(settingsData);
+      
+      if (typeof settings.opacity === 'number') {
+        appOpacity = Math.max(0.2, Math.min(1.0, settings.opacity));
+        console.log('Loaded opacity setting:', appOpacity);
+      }
+    } catch (fileError) {
+      // Settings file doesn't exist yet, will use defaults
+      console.log('Using default opacity setting:', appOpacity);
+    }
+  } catch (error) {
+    console.error('Error loading settings:', error);
+  }
 }
 
 // Comprehensive Profile Verification
 ipcMain.handle('verify-profile-comprehensive', async (event, request: VerificationRequest): Promise<ComprehensiveVerificationResult> => {
-  console.log('🔍 COMPREHENSIVE VERIFICATION STARTED');
-  console.log('📝 Request details:', {
+  console.log('COMPREHENSIVE VERIFICATION STARTED');
+  console.log('Request details:', {
     hasPhotos: request.photos?.length || 0,
     hasProfileUrls: request.profile_urls?.length || 0,
     hasConversation: request.conversation_messages?.length || 0,
@@ -875,9 +995,9 @@ ipcMain.handle('verify-profile-comprehensive', async (event, request: Verificati
 
     const result = await verificationSystem!.performComprehensiveVerification(request);
     
-    console.log('✅ VERIFICATION COMPLETE');
-    console.log(`📊 Trust Score: ${result.overall_trust_score}%`);
-    console.log(`⚠️  Risk Level: ${result.risk_level.toUpperCase()}`);
+    console.log('VERIFICATION COMPLETE');
+    console.log(`Trust Score: ${result.overall_trust_score}%`);
+    console.log(`Risk Level: ${result.risk_level.toUpperCase()}`);
     console.log(`🚨 Critical Warnings: ${result.critical_warnings.length}`);
     console.log(`⛔ Immediate Threats: ${result.immediate_threats.length}`);
     
@@ -904,9 +1024,9 @@ ipcMain.handle('verify-profile-comprehensive', async (event, request: Verificati
 
     return result;
   } catch (error) {
-    console.error('❌ Comprehensive verification failed:', error);
+    console.error('Comprehensive verification failed:', error);
     notifier.notify({
-      title: '❌ Verification Failed',
+      title: 'Verification Failed',
       message: 'Unable to complete profile verification',
       sound: true
     });
@@ -916,7 +1036,7 @@ ipcMain.handle('verify-profile-comprehensive', async (event, request: Verificati
 
 // Quick Photo Analysis
 ipcMain.handle('analyze-photos-catfish', async (event, photoPaths: string[]) => {
-  console.log('📸 QUICK PHOTO ANALYSIS');
+  console.log('QUICK PHOTO ANALYSIS');
   try {
     if (!verificationSystem) {
       initializeVerificationSystem();
@@ -942,7 +1062,7 @@ ipcMain.handle('analyze-photos-catfish', async (event, photoPaths: string[]) => 
     // Show immediate notification for high catfish risk
     if (analysis.catfish_risk > 70) {
       notifier.notify({
-        title: '🎭 Catfish Alert',
+        title: 'Catfish Alert',
         message: `High catfish risk detected: ${analysis.catfish_risk}%`,
         sound: 'Basso'
       });
@@ -998,7 +1118,7 @@ ipcMain.handle('analyze-conversation-advanced', async (event, messages: any[]) =
 
 // Real-time Safety Check
 ipcMain.handle('safety-check-realtime', async (event, profileData: any) => {
-  console.log('🛡️ REAL-TIME SAFETY CHECK');
+  console.log('REAL-TIME SAFETY CHECK');
   try {
     if (!verificationSystem) {
       initializeVerificationSystem();
@@ -1040,7 +1160,7 @@ ipcMain.handle('safety-check-realtime', async (event, profileData: any) => {
   } catch (error) {
     console.error('Real-time safety check failed:', error);
     notifier.notify({
-      title: '⚠️ Safety Check Failed',
+      title: 'Safety Check Failed',
       message: 'Unable to verify profile safety - exercise caution',
       sound: true
     });
@@ -1103,7 +1223,8 @@ ipcMain.handle('export-verification-report', async (event, verificationData: Com
 });
 
 // Initialize verification system when app starts
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await loadAppSettings(); // Load settings first
   createWindow();
   initializeDesktopFeatures(); // Initialize desktop-specific features
   initializeVerificationSystem(); // Initialize verification system

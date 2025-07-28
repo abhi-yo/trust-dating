@@ -67,7 +67,7 @@ const DatingDashboard: React.FC = () => {
         conversationId: 'demo_conversation_1',
         platform: 'Tinder',
         contact: 'Sarah',
-        newMessage: "Hey! I saw you're into hiking too. Have you been to any good trails lately? I just discovered this amazing spot in the mountains last weekend 🏔️",
+        newMessage: "Hey! I saw you're into hiking too. Have you been to any good trails lately? I just discovered this amazing spot in the mountains last weekend",
         sender: 'contact' as const,
         allMessages: [
           {
@@ -136,21 +136,41 @@ const DatingDashboard: React.FC = () => {
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'warning': return '⚠️';
-      case 'opportunity': return '✨';
-      case 'advice': return '💡';
-      case 'pattern': return '📊';
-      default: return '📝';
+      case 'warning': return '';
+      case 'opportunity': return '';
+      case 'advice': return '';
+      case 'pattern': return '';
+      default: return '';
     }
   };
 
   return (
-    <div className="min-h-screen bg-black/95 text-white p-6 font-['DM_Sans']">
-      <div className="max-w-7xl mx-auto">
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, rgba(6, 10, 20, 0.95), rgba(15, 23, 42, 0.95))',
+      backdropFilter: 'blur(20px)',
+      color: '#e2e8f0',
+      padding: '24px',
+      fontFamily: '"DM Sans", sans-serif'
+    }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">🎯 Dating Intelligence Dashboard</h1>
-          <p className="text-gray-400">Advanced AI-powered dating assistant with conversation analysis, safety monitoring, and personalized advice</p>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ 
+            fontSize: '32px', 
+            fontWeight: '700', 
+            marginBottom: '8px',
+            color: '#ffffff'
+          }}>
+            Dating Intelligence Dashboard
+          </h1>
+          <p style={{ 
+            color: '#94a3b8',
+            fontSize: '16px',
+            lineHeight: '1.5'
+          }}>
+            Advanced AI-powered dating assistant with conversation analysis, safety monitoring, and personalized advice
+          </p>
         </div>
 
         {/* Demo Button */}
@@ -189,7 +209,7 @@ const DatingDashboard: React.FC = () => {
           {/* Analysis Results */}
           {analysisResult && (
             <div className="bg-gray-900/60 backdrop-blur-md border border-gray-700 rounded-xl p-6">
-              <h2 className="text-xl font-bold mb-4">🧠 AI Analysis Results</h2>
+              <h2 className="text-xl font-bold mb-4">AI Analysis Results</h2>
               
               {/* Message Analysis */}
               <div className="mb-6">
@@ -214,7 +234,7 @@ const DatingDashboard: React.FC = () => {
 
               {/* Safety Score */}
               <div className="mb-6">
-                <h3 className="font-semibold mb-2">🛡️ Safety & Trust</h3>
+                <h3 className="font-semibold mb-2">Safety & Trust</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Trust Score:</span>
@@ -233,7 +253,7 @@ const DatingDashboard: React.FC = () => {
 
               {/* AI Advice */}
               <div className="mb-6">
-                <h3 className="font-semibold mb-2">💡 Personalized Advice</h3>
+                <h3 className="font-semibold mb-2">Personalized Advice</h3>
                 <div className="space-y-3">
                   {analysisResult.advice.slice(0, 3).map((advice: any, index: number) => (
                     <div key={index} className="bg-gray-800/50 rounded-lg p-3">
@@ -245,7 +265,7 @@ const DatingDashboard: React.FC = () => {
                           onClick={() => provideFeedback(advice.message, 'positive')}
                           className="text-xs bg-green-600 hover:bg-green-700 px-2 py-1 rounded transition-colors"
                         >
-                          👍 Helpful
+                          Helpful
                         </button>
                         <button
                           onClick={() => provideFeedback(advice.message, 'negative')}
@@ -261,7 +281,7 @@ const DatingDashboard: React.FC = () => {
 
               {/* Conversation Metrics */}
               <div>
-                <h3 className="font-semibold mb-2">📊 Conversation Metrics</h3>
+                <h3 className="font-semibold mb-2">Conversation Metrics</h3>
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
                     <div className="text-gray-400">Response Time</div>
@@ -286,7 +306,7 @@ const DatingDashboard: React.FC = () => {
 
           {/* Recent Insights */}
           <div className="bg-gray-900/60 backdrop-blur-md border border-gray-700 rounded-xl p-6">
-            <h2 className="text-xl font-bold mb-4">🔍 Recent Insights</h2>
+            <h2 className="text-xl font-bold mb-4">Recent Insights</h2>
             <div className="space-y-3">
               {insights.length > 0 ? insights.slice(0, 6).map((insight, index) => (
                 <div key={index} className="bg-gray-800/50 rounded-lg p-3">
@@ -302,7 +322,7 @@ const DatingDashboard: React.FC = () => {
                 </div>
               )) : (
                 <div className="text-center text-gray-400 py-8">
-                  <div className="text-2xl mb-2">🔮</div>
+                  <div className="text-2xl mb-2"></div>
                   <div>No insights yet</div>
                   <div className="text-sm">Start analyzing conversations to see AI insights</div>
                 </div>
@@ -346,20 +366,20 @@ const DatingDashboard: React.FC = () => {
 
         {/* Feature Highlights */}
         <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">🚀 AI Features</h2>
+          <h2 className="text-xl font-bold mb-4">AI Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/40 border border-blue-700 rounded-xl p-6">
-              <div className="text-2xl mb-2">🧠</div>
+              <div className="text-2xl mb-2"></div>
               <h3 className="font-semibold mb-2">Conversation Analysis</h3>
               <p className="text-sm text-gray-300">Real-time sentiment analysis, tone detection, and engagement scoring with NLP</p>
             </div>
             <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/40 border border-purple-700 rounded-xl p-6">
-              <div className="text-2xl mb-2">🎯</div>
+              <div className="text-2xl mb-2"></div>
               <h3 className="font-semibold mb-2">Personalized Learning</h3>
               <p className="text-sm text-gray-300">AI learns from your successes and failures to improve advice over time</p>
             </div>
             <div className="bg-gradient-to-br from-red-900/40 to-red-800/40 border border-red-700 rounded-xl p-6">
-              <div className="text-2xl mb-2">🛡️</div>
+              <div className="text-2xl mb-2"></div>
               <h3 className="font-semibold mb-2">Safety Detection</h3>
               <p className="text-sm text-gray-300">Advanced scammer, catfish, and red flag detection with real-time alerts</p>
             </div>

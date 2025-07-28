@@ -128,7 +128,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
       <div className="bg-white border rounded-lg shadow-sm">
         <div className="border-b p-6">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            🛡️ Advanced Dating Verification System
+            Advanced Dating Verification System
           </h2>
           <p className="text-gray-600 mt-2">
             Real algorithmic verification beyond AI APIs - Advanced catfish detection, behavioral analysis, and comprehensive safety assessment
@@ -144,7 +144,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
                   activeDemo === 'comprehensive' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
                 }`}
               >
-                🛡️ Comprehensive
+                Comprehensive
               </button>
               <button
                 onClick={() => setActiveDemo('photos')}
@@ -152,7 +152,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
                   activeDemo === 'photos' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
                 }`}
               >
-                📸 Photo Analysis
+                Photo Analysis
               </button>
               <button
                 onClick={() => setActiveDemo('conversation')}
@@ -212,7 +212,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
           {activeDemo === 'photos' && (
             <div className="space-y-4">
               <div className="border border-blue-200 bg-blue-50 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900">📸 Photo Analysis Features</h4>
+                <h4 className="font-medium text-blue-900">Photo Analysis Features</h4>
                 <p className="text-blue-800 text-sm mt-1">
                   Reverse image search, facial recognition, deepfake detection, professional photo identification, and metadata analysis
                 </p>
@@ -266,7 +266,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
           {verificationResult.overall_trust_score !== undefined && (
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="border-b p-4 flex items-center justify-between">
-                <h3 className="font-semibold">✅ Verification Results</h3>
+                <h3 className="font-semibold">Verification Results</h3>
                 <button 
                   onClick={exportReport} 
                   className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded border"
@@ -338,7 +338,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
           {verificationResult.critical_warnings?.length > 0 && (
             <div className="border border-red-200 bg-red-50 rounded-lg p-4">
               <h4 className="font-medium text-red-900 flex items-center gap-2">
-                ⚠️ Critical Warnings
+                Critical Warnings
               </h4>
               <ul className="list-disc list-inside space-y-1 text-red-800 text-sm mt-2">
                 {verificationResult.critical_warnings.map((warning: string, idx: number) => (
@@ -368,7 +368,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
             {verificationResult.facial_verification && (
               <div className="bg-white border rounded-lg p-4">
                 <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  👁️ Facial Analysis
+                  Facial Analysis
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
@@ -386,7 +386,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
                   <div className="flex justify-between">
                     <span>Age Progression:</span>
                     <span className="font-semibold">
-                      {verificationResult.facial_verification.age_progression_natural ? '✅' : '❌'}
+                      {verificationResult.facial_verification.age_progression_natural ? 'Yes' : 'No'}
                     </span>
                   </div>
                 </div>
@@ -397,7 +397,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
             {verificationResult.conversation_intelligence && (
               <div className="bg-white border rounded-lg p-4">
                 <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  🧠 Conversation Analysis
+                  Conversation Analysis
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
@@ -411,7 +411,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
                   <div className="flex justify-between">
                     <span>Manipulation:</span>
                     <span className="font-semibold">
-                      {verificationResult.conversation_intelligence.emotional_manipulation_detected ? '⚠️' : '✅'}
+                      {verificationResult.conversation_intelligence.emotional_manipulation_detected ? 'Warning' : 'Clear'}
                     </span>
                   </div>
                   {verificationResult.conversation_intelligence.scam_pattern_matches?.length > 0 && (
@@ -454,7 +454,7 @@ const AdvancedVerificationDemo: React.FC<AdvancedVerificationDemoProps> = ({ isV
           {/* Safety Recommendations */}
           {verificationResult.safety_recommendations?.length > 0 && (
             <div className="bg-white border rounded-lg p-4">
-              <h4 className="text-sm font-medium mb-3">🛡️ Safety Recommendations</h4>
+              <h4 className="text-sm font-medium mb-3">Safety Recommendations</h4>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 {verificationResult.safety_recommendations.map((rec: string, idx: number) => (
                   <li key={idx}>{rec}</li>

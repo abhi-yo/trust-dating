@@ -90,20 +90,23 @@ const DesktopFeatures: React.FC = () => {
       color: '#e2e8f0'
     }}>
       <h3 style={{ 
-        color: '#f1f5f9',
-        marginBottom: '16px',
-        fontSize: '16px',
+        color: '#ffffff',
+        marginBottom: '20px',
+        fontSize: '18px',
         fontWeight: '600',
         textAlign: 'center'
       }}>
         Desktop Features
       </h3>
       
-      <div style={{ marginBottom: '12px' }}>
+      <div style={{ 
+        marginBottom: '16px',
+        textAlign: 'center'
+      }}>
         <p style={{ 
           color: '#94a3b8',
-          fontSize: '12px',
-          marginBottom: '8px',
+          fontSize: '13px',
+          marginBottom: '10px',
           textAlign: 'center',
           lineHeight: '1.4'
         }}>
@@ -113,17 +116,19 @@ const DesktopFeatures: React.FC = () => {
 
       {/* Screen Capture */}
       <div style={{ 
-        marginBottom: '12px', 
-        padding: '12px', 
-        background: 'rgba(30, 41, 59, 0.3)', 
-        borderRadius: '8px',
-        border: '1px solid rgba(71, 85, 105, 0.3)'
+        marginBottom: '16px', 
+        padding: '16px', 
+        background: 'rgba(30, 41, 59, 0.4)', 
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(71, 85, 105, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
         <h4 style={{ 
-          color: '#cbd5e1', 
-          fontSize: '13px', 
-          marginBottom: '8px', 
-          fontWeight: '500' 
+          color: '#ffffff', 
+          fontSize: '14px', 
+          marginBottom: '10px', 
+          fontWeight: '600'
         }}>
           Screen Capture
         </h4>
@@ -131,22 +136,26 @@ const DesktopFeatures: React.FC = () => {
           onClick={handleCaptureScreen}
           className="no-drag"
           style={{
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+            background: 'rgba(255, 255, 255, 0.1)',
             color: 'white',
-            border: 'none',
-            padding: '6px 12px',
-            borderRadius: '4px',
-            fontSize: '11px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '12px',
             cursor: 'pointer',
             fontFamily: 'inherit',
             width: '100%',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            fontWeight: '500'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 1)';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.8)';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           Capture Screen for Verification
@@ -155,32 +164,41 @@ const DesktopFeatures: React.FC = () => {
 
       {/* Clipboard Monitoring */}
       <div style={{ 
-        marginBottom: '12px', 
-        padding: '12px', 
-        background: 'rgba(30, 41, 59, 0.3)', 
-        borderRadius: '8px',
-        border: '1px solid rgba(71, 85, 105, 0.3)'
+        marginBottom: '16px', 
+        padding: '16px', 
+        background: 'rgba(30, 41, 59, 0.4)', 
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(71, 85, 105, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
         <h4 style={{ 
-          color: '#cbd5e1', 
-          fontSize: '13px', 
-          marginBottom: '6px', 
-          fontWeight: '500' 
+          color: '#ffffff', 
+          fontSize: '14px', 
+          marginBottom: '8px', 
+          fontWeight: '600'
         }}>
           Clipboard Monitoring
         </h4>
-        <p style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.3' }}>
+        <p style={{ 
+          fontSize: '12px', 
+          color: '#94a3b8', 
+          lineHeight: '1.4',
+          marginBottom: '8px'
+        }}>
           Automatically detects dating profile URLs copied to clipboard
         </p>
         {detectedUrl && (
           <div style={{ 
-            marginTop: '6px', 
-            padding: '6px', 
-            background: 'rgba(14, 165, 233, 0.1)', 
-            borderRadius: '4px',
-            fontSize: '10px',
+            marginTop: '8px', 
+            padding: '8px 12px', 
+            background: 'rgba(14, 165, 233, 0.15)', 
+            backdropFilter: 'blur(8px)',
+            borderRadius: '8px',
+            fontSize: '11px',
             color: '#38bdf8',
-            border: '1px solid rgba(14, 165, 233, 0.2)'
+            border: '1px solid rgba(14, 165, 233, 0.3)',
+            fontWeight: '500'
           }}>
             Detected: {detectedUrl.substring(0, 40)}...
           </div>
@@ -189,17 +207,19 @@ const DesktopFeatures: React.FC = () => {
 
       {/* Auto Launch */}
       <div style={{ 
-        marginBottom: '12px', 
-        padding: '12px', 
-        background: 'rgba(30, 41, 59, 0.3)', 
-        borderRadius: '8px',
-        border: '1px solid rgba(71, 85, 105, 0.3)'
+        marginBottom: '16px', 
+        padding: '16px', 
+        background: 'rgba(30, 41, 59, 0.4)', 
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(71, 85, 105, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
         <h4 style={{ 
-          color: '#cbd5e1', 
-          fontSize: '13px', 
-          marginBottom: '8px', 
-          fontWeight: '500' 
+          color: '#ffffff', 
+          fontSize: '14px', 
+          marginBottom: '10px', 
+          fontWeight: '600'
         }}>
           Auto Launch
         </h4>
@@ -208,9 +228,10 @@ const DesktopFeatures: React.FC = () => {
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            fontSize: '11px', 
+            fontSize: '12px', 
             cursor: 'pointer',
-            color: '#e2e8f0'
+            color: '#e2e8f0',
+            fontWeight: '500'
           }}
         >
           <input
@@ -218,8 +239,9 @@ const DesktopFeatures: React.FC = () => {
             checked={autoLaunchEnabled}
             onChange={handleToggleAutoLaunch}
             style={{ 
-              marginRight: '8px',
-              accentColor: '#3b82f6'
+              marginRight: '10px',
+              accentColor: '#8b5cf6',
+              transform: 'scale(1.1)'
             }}
             className="no-drag"
           />
@@ -229,17 +251,19 @@ const DesktopFeatures: React.FC = () => {
 
       {/* File Operations */}
       <div style={{ 
-        marginBottom: '12px', 
-        padding: '12px', 
-        background: 'rgba(30, 41, 59, 0.3)', 
-        borderRadius: '8px',
-        border: '1px solid rgba(71, 85, 105, 0.3)'
+        marginBottom: '16px', 
+        padding: '16px', 
+        background: 'rgba(30, 41, 59, 0.4)', 
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(71, 85, 105, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
         <h4 style={{ 
-          color: '#cbd5e1', 
-          fontSize: '13px', 
-          marginBottom: '8px', 
-          fontWeight: '500' 
+          color: '#ffffff', 
+          fontSize: '14px', 
+          marginBottom: '10px', 
+          fontWeight: '600'
         }}>
           Native File Operations
         </h4>
@@ -247,22 +271,26 @@ const DesktopFeatures: React.FC = () => {
           onClick={handleSaveReport}
           className="no-drag"
           style={{
-            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+            background: 'rgba(255, 255, 255, 0.1)',
             color: 'white',
-            border: 'none',
-            padding: '6px 12px',
-            borderRadius: '4px',
-            fontSize: '11px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '12px',
             cursor: 'pointer',
             fontFamily: 'inherit',
             width: '100%',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            fontWeight: '500'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 1)';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.8)';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           Save Verification Report
@@ -272,31 +300,46 @@ const DesktopFeatures: React.FC = () => {
       {/* Status Display */}
       {lastCaptureResult && (
         <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          background: 'rgba(34, 197, 94, 0.1)',
-          border: '1px solid rgba(34, 197, 94, 0.2)',
-          borderRadius: '4px',
-          fontSize: '10px',
+          marginTop: '16px',
+          padding: '12px',
+          background: 'rgba(34, 197, 94, 0.15)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
+          borderRadius: '8px',
+          fontSize: '11px',
           color: '#4ade80',
-          lineHeight: '1.3'
+          lineHeight: '1.4',
+          fontWeight: '500'
         }}>
           {lastCaptureResult}
         </div>
       )}
 
       <div style={{ 
-        marginTop: '12px',
-        padding: '10px',
-        background: 'rgba(120, 53, 15, 0.2)',
-        borderRadius: '6px',
-        fontSize: '10px',
+        marginTop: '16px',
+        padding: '16px',
+        background: 'rgba(120, 53, 15, 0.25)',
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        fontSize: '11px',
         color: '#fbbf24',
-        lineHeight: '1.4',
-        border: '1px solid rgba(217, 119, 6, 0.3)'
+        lineHeight: '1.5',
+        border: '1px solid rgba(217, 119, 6, 0.4)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ fontWeight: '600', marginBottom: '4px' }}>Why Desktop App?</div>
-        <div style={{ color: '#fcd34d' }}>
+        <div style={{ 
+          fontWeight: '700', 
+          marginBottom: '8px',
+          fontSize: '12px',
+          color: '#ffffff'
+        }}>
+          Why Desktop App?
+        </div>
+        <div style={{ 
+          color: '#fcd34d',
+          fontWeight: '500',
+          lineHeight: '1.6'
+        }}>
           • Real-time clipboard monitoring<br />
           • Native screen capture without browser permissions<br />
           • System tray integration<br />

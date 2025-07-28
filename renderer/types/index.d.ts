@@ -137,6 +137,8 @@ interface ElectronAPI {
   captureScreen: () => Promise<{ success: boolean; data?: any; error?: string }>;
   toggleAutoLaunch: (enabled: boolean) => Promise<{ success: boolean; enabled?: boolean; error?: string }>;
   saveVerificationReport: (reportData: any) => Promise<{ success: boolean; filePath?: string; cancelled?: boolean; error?: string }>;
+  setAppOpacity: (opacity: number) => Promise<{ success: boolean }>;
+  getAppOpacity: () => Promise<{ opacity: number }>;
   
   // Event listeners
   onUrlDetected: (callback: (url: string) => void) => void;

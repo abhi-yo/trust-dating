@@ -16,20 +16,20 @@ const Overlay: React.FC = () => {
       // Simulate trust analysis
       const mockAnalysis = `Trust Analysis for ${url}:
       
-🔍 Domain Analysis:
+Domain Analysis:
 - SSL Certificate: Valid
 - Domain Age: 2+ years
 - Security Rating: 8/10
 
-⚠️ Red Flags:
+Red Flags:
 - None detected
 
-✅ Trust Score: 85/100
+Trust Score: 85/100
 - This appears to be a legitimate website
 - No suspicious patterns found
 - Safe for basic interactions
 
-💡 Recommendations:
+Recommendations:
 - Verify profile information independently
 - Start with public meetings
 - Trust your instincts`;

@@ -37,6 +37,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   captureScreen: () => ipcRenderer.invoke('capture-screen'),
   toggleAutoLaunch: (enabled: boolean) => ipcRenderer.invoke('toggle-auto-launch', enabled),
   saveVerificationReport: (reportData: any) => ipcRenderer.invoke('save-verification-report', reportData),
+  setAppOpacity: (opacity: number) => ipcRenderer.invoke('set-app-opacity', opacity),
+  getAppOpacity: () => ipcRenderer.invoke('get-app-opacity'),
   
   // Event listeners for desktop features
   onUrlDetected: (callback: (url: string) => void) => 

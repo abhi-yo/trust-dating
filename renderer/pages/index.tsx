@@ -1,52 +1,47 @@
 import { useState, useEffect } from 'react';
-import { create } from 'zustand';
-import TrustChecker from '../components/TrustChecker';
-import NlpProcessor from '../components/NlpProcessor';
-import ActivitySuggester from '../components/ActivitySuggester';
-import DesktopFeatures from '../components/DesktopFeatures';
-
-interface Store { 
-  interests: string[]; 
-  setInterests: (newInterests: string[]) => void; 
-}
-
-const useStore = create<Store>((set) => ({ 
-  interests: [], 
-  setInterests: (newInterests) => set({ interests: newInterests }) 
-}));
+import SmartReply from '../components/SmartReply';
+import Settings from '../components/Settings';
+import ApiSetup from '../components/ApiSetup';
 
 export default function Home() {
-  const [view, setView] = useState<'trust' | 'chat' | 'activities' | 'desktop' | 'verification' | 'settings'>('trust');
-  const [transparency, setTransparency] = useState(85); // Default 85% opacity
-  
-  // Load saved opacity on component mount
+  const [currentView, setCurrentView] = useState<'smartReply' | 'settings' | 'setup'>('setup');
+  const [isFirstRun, setIsFirstRun] = useState(true);
+  const [hasValidApiKey, setHasValidApiKey] = useState(false);
+
   useEffect(() => {
-    async function loadOpacity() {
+    const checkSetupStatus = async () => {
       try {
-        const response = await window.electronAPI.getAppOpacity();
-        if (response && typeof response.opacity === 'number') {
-          setTransparency(Math.round(response.opacity * 100));
+        const firstRun = await window.electronAPI.isFirstRun();
+        const validKey = await window.electronAPI.hasValidApiKey();
+        
+        setIsFirstRun(firstRun);
+        setHasValidApiKey(validKey);
+        
+        if (!firstRun && validKey) {
+          setCurrentView('smartReply');
+        } else {
+          setCurrentView('setup');
         }
       } catch (error) {
-        console.error('Failed to load opacity setting:', error);
+        console.error('Failed to check setup status:', error);
+        setCurrentView('setup');
       }
-    }
-    
-    loadOpacity();
+    };
+
+    checkSetupStatus();
   }, []);
-  
-  // Update window opacity when transparency changes
-  useEffect(() => {
-    async function updateOpacity() {
-      try {
-        await window.electronAPI.setAppOpacity(transparency / 100);
-      } catch (error) {
-        console.error('Failed to update opacity:', error);
-      }
-    }
-    
-    updateOpacity();
-  }, [transparency]);
+
+  const handleSetupComplete = () => {
+    console.log("handleSetupComplete called");
+    setIsFirstRun(false);
+    setHasValidApiKey(true);
+    setCurrentView('smartReply');
+    console.log("Setup complete, switching to smartReply view");
+  };
+
+  if (isFirstRun || !hasValidApiKey) {
+    return <ApiSetup onSetupComplete={handleSetupComplete} />;
+  }
 
   return (
     <>
@@ -79,9 +74,9 @@ export default function Home() {
       `}</style>
     <div style={{ 
       padding: '0', 
-      background: `rgba(0, 0, 0, ${transparency / 100})`,
-      backdropFilter: `blur(${Math.max(2, Math.min(10, 12 * transparency / 100))}px)`,
-      WebkitBackdropFilter: `blur(${Math.max(2, Math.min(10, 12 * transparency / 100))}px)`,
+      background: 'rgba(0, 0, 0, 0.85)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
       borderRadius: '12px',
       color: 'white',
       fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -110,7 +105,7 @@ export default function Home() {
           fontFamily: 'inherit',
           color: '#ffffff'
         }}>
-          Trust & Activities
+          Dating Smart Reply
         </div>
         <div style={{ 
           fontSize: '11px', 
@@ -118,298 +113,70 @@ export default function Home() {
           fontFamily: 'inherit',
           color: '#ffffff'
         }}>
-          Drag to move
+          Cmd+Shift+O
         </div>
       </div>
       
       {/* Main Content */}
       <div className="no-drag" style={{ 
-        padding: '20px',
         background: 'transparent',
         borderRadius: '0 0 12px 12px'
       }}>
-        <h2 style={{ 
-          margin: '0 0 24px 0', 
-          textAlign: 'center', 
-          fontFamily: 'inherit', 
-          fontSize: '20px',
-          fontWeight: '600',
-          color: '#ffffff'
-        }}>
-          Dating Assistant
-        </h2>
       
+      {/* Simple Navigation */}
       <div style={{ 
         display: 'flex', 
-        gap: '8px', 
-        marginBottom: '24px',
+        gap: '0px', 
+        marginBottom: '0px',
         justifyContent: 'center',
-        flexWrap: 'wrap'
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <button 
           className="no-drag"
-          onClick={() => setView('trust')}
+          onClick={() => setCurrentView('smartReply')}
           style={{
-            padding: '8px 16px',
+            flex: 1,
+            padding: '12px 16px',
             backgroundColor: 'transparent',
             color: 'white',
-            borderBottom: view === 'trust' ? '2px solid white' : 'none',
+            borderBottom: currentView === 'smartReply' ? '2px solid white' : 'none',
             border: 'none',
             borderRadius: '0',
             cursor: 'pointer',
-            fontSize: '12px',
+            fontSize: '13px',
             fontFamily: 'inherit',
-            fontWeight: view === 'trust' ? '600' : '400',
+            fontWeight: currentView === 'smartReply' ? '600' : '400',
             transition: 'all 0.2s ease'
           }}
         >
-          Trust
+          💬 Smart Reply
         </button>
         <button 
           className="no-drag"
-          onClick={() => setView('verification')}
+          onClick={() => setCurrentView('settings')}
           style={{
-            padding: '8px 16px',
+            flex: 1,
+            padding: '12px 16px',
             backgroundColor: 'transparent',
             color: 'white',
-            borderBottom: view === 'verification' ? '2px solid white' : 'none',
+            borderBottom: currentView === 'settings' ? '2px solid white' : 'none',
             border: 'none',
             borderRadius: '0',
             cursor: 'pointer',
-            fontSize: '12px',
+            fontSize: '13px',
             fontFamily: 'inherit',
-            fontWeight: view === 'verification' ? '600' : '400',
+            fontWeight: currentView === 'settings' ? '600' : '400',
             transition: 'all 0.2s ease'
           }}
         >
-          Advanced
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setView('chat')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: view === 'chat' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontFamily: 'inherit',
-            fontWeight: view === 'chat' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Chat
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setView('activities')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: view === 'activities' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontFamily: 'inherit',
-            fontWeight: view === 'activities' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Activities
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setView('desktop')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: view === 'desktop' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontFamily: 'inherit',
-            fontWeight: view === 'desktop' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Desktop
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setView('settings')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: view === 'settings' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontFamily: 'inherit',
-            fontWeight: view === 'settings' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Settings
+          ⚙️ Settings
         </button>
       </div>
 
-      {view === 'trust' && <TrustChecker />}
-      {view === 'verification' && <TrustChecker showAdvanced={true} />}
-      {view === 'chat' && <NlpProcessor />}
-      {view === 'activities' && <ActivitySuggester />}
-      {view === 'desktop' && <DesktopFeatures />}
-      {view === 'settings' && (
-        <div className="no-drag" style={{ padding: '20px' }}>
-          <h3 style={{ 
-            margin: '0 0 24px 0', 
-            color: '#ffffff',
-            fontSize: '18px',
-            fontWeight: '600',
-            fontFamily: 'inherit'
-          }}>
-            Settings
-          </h3>
-          
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '12px', 
-              fontSize: '14px', 
-              color: '#ffffff', 
-              fontWeight: '500',
-              fontFamily: 'inherit'
-            }}>
-              App Transparency: {transparency}%
-            </label>
-            
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px',
-              marginBottom: '8px'
-            }}>
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#cccccc',
-                minWidth: '60px'
-              }}>
-                Transparent
-              </span>
-              
-              <input
-                type="range"
-                min="20"
-                max="100"
-                value={transparency}
-                onChange={(e) => setTransparency(Number(e.target.value))}
-                style={{
-                  flex: 1,
-                  height: '4px',
-                  borderRadius: '2px',
-                  background: `linear-gradient(to right, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) ${transparency}%, rgba(255, 255, 255, 0.3) ${transparency}%, rgba(255, 255, 255, 0.3) 100%)`,
-                  outline: 'none',
-                  cursor: 'pointer',
-                  WebkitAppearance: 'none',
-                  appearance: 'none'
-                }}
-              />
-              
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#cccccc',
-                minWidth: '40px'
-              }}>
-                Solid
-              </span>
-            </div>
-            
-            <div style={{ 
-              fontSize: '12px', 
-              color: '#888888',
-              fontStyle: 'italic',
-              marginTop: '8px'
-            }}>
-              Adjust the transparency level of the entire app. This controls both background darkness and blur effect. Lower values make the app more see-through.
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ 
-              margin: '0 0 16px 0', 
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: '500',
-              fontFamily: 'inherit'
-            }}>
-              Privacy & Security
-            </h4>
-            
-            <div style={{ 
-              padding: '16px',
-              background: 'transparent',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              fontSize: '13px',
-              color: '#cccccc',
-              lineHeight: '1.5'
-            }}>
-              • All analysis is performed locally on your device<br/>
-              • No personal data is stored or transmitted<br/>
-              • Use keyboard shortcut Cmd/Ctrl+Shift+O to toggle overlay<br/>
-              • Your conversations remain private and secure
-            </div>
-          </div>
-
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px',
-            marginTop: '24px'
-          }}>
-            <button
-              onClick={() => setTransparency(85)}
-              style={{
-                padding: '8px 16px',
-                background: 'transparent',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '6px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Reset to Default (85%)
-            </button>
-            
-            <button
-              onClick={() => setView('trust')}
-              style={{
-                padding: '8px 16px',
-                background: 'transparent',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '6px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Back to Trust Checker
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Views */}
+      {currentView === 'smartReply' && <SmartReply />}
+      
+      {currentView === 'settings' && <Settings />}
       </div>
     </div>
     </>

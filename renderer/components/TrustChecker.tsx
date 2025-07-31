@@ -87,7 +87,7 @@ const TrustChecker: React.FC<TrustCheckerProps> = ({ showAdvanced = false }) => 
         setComprehensiveResult({
           overall_trust_score: result.overall_trust_score,
           risk_level: result.risk_level,
-          catfish_analysis: result.catfish_analysis || {},
+          // catfish_analysis: result.catfish_analysis || {},
           facial_verification: {
             consistency_across_photos: result.facial_verification?.consistency_across_photos || 50,
             deepfake_probability: result.facial_verification?.deepfake_probability || 0,

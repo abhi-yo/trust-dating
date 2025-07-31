@@ -3,17 +3,18 @@ export class SafeImageProcessor {
   static async processImageSafely(imageBuffer: Buffer): Promise<{ width: number, height: number, format: string }> {
     try {
       // Try to use Sharp if available
-      const sharp = await import('sharp').catch(() => null) as any;
+      // const sharp = await import('sharp').catch(() => null) as any;
+      // const sharp = await import('sharp').catch(() => null) as any;
       
-      if (sharp) {
-        const image = sharp.default(imageBuffer);
-        const metadata = await image.metadata();
-        return {
-          width: metadata.width || 0,
-          height: metadata.height || 0,
-          format: metadata.format || 'unknown'
-        };
-      }
+      // if (sharp) {
+      //   const image = sharp.default(imageBuffer);
+      //   const metadata = await image.metadata();
+      //   return {
+      //     width: metadata.width || 0,
+      //     height: metadata.height || 0,
+      //     format: metadata.format || 'unknown'
+      //   };
+      // }
       
       // Fallback: Basic image info without Sharp
       return this.getBasicImageInfo(imageBuffer);

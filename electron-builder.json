@@ -4,6 +4,12 @@
   "directories": {
     "output": "dist"
   },
+  "files": [
+    "build/**/*",
+    "renderer-dist/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
   "mac": {
     "target": "dmg",
     "icon": "icon.icns"

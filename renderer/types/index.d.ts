@@ -166,6 +166,9 @@ interface ElectronAPI {
   setAppOpacity: (opacity: number) => Promise<{ success: boolean }>;
   getAppOpacity: () => Promise<{ opacity: number }>;
   
+  // Clipboard operations
+  getClipboard: () => Promise<string>;
+  
   // Event listeners
   onUrlDetected: (callback: (url: string) => void) => void;
   onImageDetected: (callback: (filePath: string) => void) => void;

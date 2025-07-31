@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import SmartReply from '../components/SmartReply';
 import Settings from '../components/Settings';
 import ApiSetup from '../components/ApiSetup';
+import InterestAnalyzer from '../components/InterestAnalyzer';
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<'smartReply' | 'settings' | 'setup'>('setup');
+  const [currentView, setCurrentView] = useState<'smartReply' | 'settings' | 'setup' | 'interest'>('setup');
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [hasValidApiKey, setHasValidApiKey] = useState(false);
 
@@ -153,6 +154,26 @@ export default function Home() {
         </button>
         <button 
           className="no-drag"
+          onClick={() => setCurrentView('interest')}
+          style={{
+            flex: 1,
+            padding: '12px 16px',
+            backgroundColor: 'transparent',
+            color: 'white',
+            borderBottom: currentView === 'interest' ? '2px solid white' : 'none',
+            border: 'none',
+            borderRadius: '0',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontFamily: 'inherit',
+            fontWeight: currentView === 'interest' ? '600' : '400',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Interest Detection
+        </button>
+        <button 
+          className="no-drag"
           onClick={() => setCurrentView('settings')}
           style={{
             flex: 1,
@@ -175,6 +196,8 @@ export default function Home() {
 
       {/* Views */}
       {currentView === 'smartReply' && <SmartReply />}
+      
+      {currentView === 'interest' && <InterestAnalyzer onBack={() => setCurrentView('smartReply')} />}
       
       {currentView === 'settings' && <Settings />}
       </div>

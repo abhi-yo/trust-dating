@@ -1081,6 +1081,16 @@ const initializeDesktopFeatures = () => {
     }
   });
 
+  // Get clipboard content
+  ipcMain.handle("get-clipboard", async () => {
+    try {
+      return clipboard.readText();
+    } catch (error) {
+      console.error("Error reading clipboard:", error);
+      return "";
+    }
+  });
+
   // Monitor clipboard for dating messages (enhanced for smart replies)
   let lastClipboard = "";
   const clipboardMonitor = setInterval(async () => {

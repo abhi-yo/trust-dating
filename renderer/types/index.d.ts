@@ -2,6 +2,32 @@
 /// <reference types="react-dom" />
 
 interface ElectronAPI {
+  // API Key Management
+  setApiKey: (provider: 'gemini' | 'openai' | 'anthropic', apiKey: string) => Promise<void>;
+  getApiKey: (provider?: 'gemini' | 'openai' | 'anthropic') => Promise<string | undefined>;
+  hasValidApiKey: () => Promise<boolean>;
+  isFirstRun: () => Promise<boolean>;
+  getCurrentProvider: () => Promise<string>;
+  
+  // Smart Reply Generation
+  generateSmartReplies: (data: {
+    message: string;
+    context?: string;
+    platform?: string;
+    tone?: 'casual' | 'fun' | 'romantic' | 'witty';
+  }) => Promise<{
+    success: boolean;
+    replies: Array<{
+      text: string;
+      reason: string;
+    }>;
+    sentiment: string;
+    tips: string[];
+    error?: string;
+    fallback?: boolean;
+    note?: string;
+  }>;
+  
   // Enhanced conversation analysis
   processChat: (chatData: {
     conversationId: string;
@@ -143,6 +169,7 @@ interface ElectronAPI {
   // Event listeners
   onUrlDetected: (callback: (url: string) => void) => void;
   onImageDetected: (callback: (filePath: string) => void) => void;
+  onMessageDetected: (callback: (data: { message: string; timestamp: number }) => void) => void;
   onShowSettings: (callback: () => void) => void;
 
   // ADVANCED VERIFICATION SYSTEM APIs

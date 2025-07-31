@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import { SafeImageProcessor } from '../utils/safeImageProcessor';
 import * as faceapi from 'face-api.js';
 import { reverseImageSearchGoogle } from 'reverse-image-search-google';
 import puppeteer, { Browser, Page } from 'puppeteer';
@@ -175,8 +175,7 @@ class AdvancedCatfishDetector {
     try {
       // Load image
       const imageBuffer = await fs.promises.readFile(photoPath);
-      const image = sharp(imageBuffer);
-      const metadata = await image.metadata();
+      const imageInfo = await SafeImageProcessor.processImageSafely(imageBuffer);
 
       // EXIF Analysis
       try {

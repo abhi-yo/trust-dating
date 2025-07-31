@@ -48,6 +48,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Advanced dating intelligence
   getConversationInsights: (conversationId: string) =>
     ipcRenderer.invoke("get-conversation-insights", conversationId),
+  
+  // Clipboard operations
+  getClipboard: () => ipcRenderer.invoke("get-clipboard"),
   provideAdviceFeedback: (data: {
     conversationId: string;
     adviceUsed: string;

@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { Menu, MessageCircle, Settings as SettingsIcon, Heart, Shield, Brain, X, ChevronDown } from 'lucide-react';
 import SmartReply from '../components/SmartReply';
 import Settings from '../components/Settings';
 import ApiSetup from '../components/ApiSetup';
 import InterestAnalyzer from '../components/InterestAnalyzer';
+import CatfishDetection from '../components/CatfishDetection';
+import ConversationQuality from '../components/ConversationQuality';
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<'smartReply' | 'settings' | 'setup' | 'interest'>('setup');
+  const [currentView, setCurrentView] = useState<'smartReply' | 'settings' | 'setup' | 'interest' | 'catfish' | 'quality'>('setup');
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [hasValidApiKey, setHasValidApiKey] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkSetupStatus = async () => {
@@ -38,6 +42,33 @@ export default function Home() {
     setHasValidApiKey(true);
     setCurrentView('smartReply');
     console.log("Setup complete, switching to smartReply view");
+  };
+
+  const handleViewChange = (view: 'smartReply' | 'settings' | 'interest' | 'catfish' | 'quality') => {
+    setCurrentView(view);
+    setIsMenuOpen(false);
+  };
+
+  const getViewTitle = () => {
+    switch (currentView) {
+      case 'smartReply': return 'Smart Reply';
+      case 'interest': return 'Interest Analysis';
+      case 'catfish': return 'Catfish Detection';
+      case 'quality': return 'Conversation Quality';
+      case 'settings': return 'Settings';
+      default: return 'Dating Assistant';
+    }
+  };
+
+  const getViewIcon = () => {
+    switch (currentView) {
+      case 'smartReply': return <MessageCircle size={16} />;
+      case 'interest': return <Heart size={16} />;
+      case 'catfish': return <Shield size={16} />;
+      case 'quality': return <Brain size={16} />;
+      case 'settings': return <SettingsIcon size={16} />;
+      default: return <MessageCircle size={16} />;
+    }
   };
 
   if (isFirstRun || !hasValidApiKey) {
@@ -86,7 +117,7 @@ export default function Home() {
       border: 'none',
       transition: 'background 0.3s ease, backdrop-filter 0.3s ease'
     }}>
-      {/* Draggable Header */}
+      {/* New Header with Hamburger Menu */}
       <div 
         className="drag-handle"
         style={{ 
@@ -97,17 +128,48 @@ export default function Home() {
           userSelect: 'none',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          position: 'relative'
         }}
       >
-        <div style={{ 
-          fontSize: '14px', 
-          fontWeight: '600',
-          fontFamily: 'inherit',
-          color: '#ffffff'
-        }}>
-          Dating Smart Reply
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Hamburger Menu Button */}
+          <button
+            className="no-drag"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+
+          {/* Current View Title and Icon */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {getViewIcon()}
+            <span style={{ 
+              fontSize: '14px', 
+              fontWeight: '600',
+              fontFamily: 'inherit',
+              color: '#ffffff'
+            }}>
+              {getViewTitle()}
+            </span>
+          </div>
         </div>
+
         <div style={{ 
           fontSize: '11px', 
           opacity: 0.8,
@@ -116,90 +178,210 @@ export default function Home() {
         }}>
           Cmd+Shift+O
         </div>
+
+        {/* Dropdown Menu */}
+        {isMenuOpen && (
+          <div 
+            className="no-drag"
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: '16px',
+              right: '16px',
+              background: 'rgba(0, 0, 0, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              zIndex: 1000,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Menu Items */}
+            <button
+              onClick={() => handleViewChange('smartReply')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: currentView === 'smartReply' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                transition: 'background 0.2s ease',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+              }}
+              onMouseEnter={(e) => {
+                if (currentView !== 'smartReply') {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentView !== 'smartReply') {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <MessageCircle size={16} />
+              <span>Smart Reply</span>
+              <span style={{ fontSize: '12px', opacity: 0.7, marginLeft: 'auto' }}>Main</span>
+            </button>
+
+            <button
+              onClick={() => handleViewChange('interest')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: currentView === 'interest' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                transition: 'background 0.2s ease',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+              }}
+              onMouseEnter={(e) => {
+                if (currentView !== 'interest') {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentView !== 'interest') {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <Heart size={16} />
+              <span>Interest Analysis</span>
+            </button>
+
+            <button
+              onClick={() => handleViewChange('catfish')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: currentView === 'catfish' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                transition: 'background 0.2s ease',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+              }}
+              onMouseEnter={(e) => {
+                if (currentView !== 'catfish') {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentView !== 'catfish') {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <Shield size={16} />
+              <span>Catfish Detection</span>
+            </button>
+
+            <button
+              onClick={() => handleViewChange('quality')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: currentView === 'quality' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                transition: 'background 0.2s ease',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+              }}
+              onMouseEnter={(e) => {
+                if (currentView !== 'quality') {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentView !== 'quality') {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <Brain size={16} />
+              <span>Conversation Quality</span>
+            </button>
+
+            <button
+              onClick={() => handleViewChange('settings')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: currentView === 'settings' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                transition: 'background 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (currentView !== 'settings') {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentView !== 'settings') {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <SettingsIcon size={16} />
+              <span>Settings</span>
+            </button>
+          </div>
+        )}
       </div>
       
       {/* Main Content */}
-      <div className="no-drag" style={{ 
-        background: 'transparent',
-        borderRadius: '0 0 12px 12px'
-      }}>
-      
-      {/* Simple Navigation */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '0px', 
-        marginBottom: '0px',
-        justifyContent: 'center',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <button 
-          className="no-drag"
-          onClick={() => setCurrentView('smartReply')}
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: currentView === 'smartReply' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontFamily: 'inherit',
-            fontWeight: currentView === 'smartReply' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          💬 Smart Reply
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setCurrentView('interest')}
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: currentView === 'interest' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontFamily: 'inherit',
-            fontWeight: currentView === 'interest' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Interest Detection
-        </button>
-        <button 
-          className="no-drag"
-          onClick={() => setCurrentView('settings')}
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            backgroundColor: 'transparent',
-            color: 'white',
-            borderBottom: currentView === 'settings' ? '2px solid white' : 'none',
-            border: 'none',
-            borderRadius: '0',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontFamily: 'inherit',
-            fontWeight: currentView === 'settings' ? '600' : '400',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          ⚙️ Settings
-        </button>
-      </div>
-
-      {/* Views */}
-      {currentView === 'smartReply' && <SmartReply />}
-      
-      {currentView === 'interest' && <InterestAnalyzer onBack={() => setCurrentView('smartReply')} />}
-      
-      {currentView === 'settings' && <Settings />}
+      <div 
+        className="no-drag" 
+        style={{ 
+          background: 'transparent',
+          borderRadius: '0 0 12px 12px',
+          minHeight: 'calc(100vh - 60px)'
+        }}
+        onClick={() => setIsMenuOpen(false)} // Close menu when clicking outside
+      >
+        {/* Views */}
+        {currentView === 'smartReply' && <SmartReply />}
+        
+        {currentView === 'interest' && <InterestAnalyzer onBack={() => handleViewChange('smartReply')} />}
+        
+        {currentView === 'catfish' && <CatfishDetection onBack={() => handleViewChange('smartReply')} />}
+        
+        {currentView === 'quality' && <ConversationQuality onBack={() => handleViewChange('smartReply')} />}
+        
+        {currentView === 'settings' && <Settings />}
       </div>
     </div>
     </>

@@ -35,6 +35,9 @@ importers:
       electron-store:
         specifier: ^10.1.0
         version: 10.1.0
+      lucide-react:
+        specifier: ^0.536.0
+        version: 0.536.0(react@18.3.1)
       natural:
         specifier: ^8.1.0
         version: 8.1.0(socks@2.8.6)
@@ -1525,6 +1528,11 @@ packages:
   lru-cache@7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
+
+  lucide-react@0.536.0:
+    resolution: {integrity: sha512-2PgvNa9v+qz4Jt/ni8vPLt4jwoFybXHuubQT8fv4iCW5TjDxkbZjNZZHa485ad73NSEn/jdsEtU57eE1g+ma8A==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   macos-alias@0.2.12:
     resolution: {integrity: sha512-yiLHa7cfJcGRFq4FrR4tMlpNHb4Vy4mWnpajlSSIFM5k4Lv8/7BbbDLzCAVogWNl0LlLhizRp1drXv0hK9h0Yw==}
@@ -4515,6 +4523,10 @@ snapshots:
     optional: true
 
   lru-cache@7.18.3: {}
+
+  lucide-react@0.536.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   macos-alias@0.2.12:
     dependencies:

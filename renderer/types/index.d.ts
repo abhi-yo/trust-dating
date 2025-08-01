@@ -2,12 +2,30 @@
 /// <reference types="react-dom" />
 
 interface ElectronAPI {
-  // API Key Management
-  setApiKey: (provider: 'gemini' | 'openai' | 'anthropic', apiKey: string) => Promise<void>;
-  getApiKey: (provider?: 'gemini' | 'openai' | 'anthropic') => Promise<string | undefined>;
+  // AP  // Safety Analysis
+  safetyCheck: (data: {
+    type: 'message' | 'profile';
+    content: string;
+    conversationId?: string;
+  }) => Promise<{
+    safe: boolean;
+    safety_score?: number;
+    alerts: Array<{
+      severity: string;
+      type: string;
+      description: string;
+      recommended_action: string;
+    }>;
+  }>;
+
+  // Trust Analysis
+  setApiKey: (provider: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom', apiKey: string, options?: { model?: string; endpoint?: string }) => Promise<void>;
+  getApiKey: (provider?: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom') => Promise<string | undefined>;
   hasValidApiKey: () => Promise<boolean>;
   isFirstRun: () => Promise<boolean>;
   getCurrentProvider: () => Promise<string>;
+  getProviderConfig: () => Promise<{ provider: string; model?: string; endpoint?: string }>;
+  getAvailableModels: (provider: string) => Promise<string[]>;
   
   // Smart Reply Generation
   generateSmartReplies: (data: {
@@ -166,7 +184,18 @@ interface ElectronAPI {
   setAppOpacity: (opacity: number) => Promise<{ success: boolean }>;
   getAppOpacity: () => Promise<{ opacity: number }>;
   
-  // Clipboard operations
+  // API Key management for settings
+  writeFile: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
+  getCurrentApiKey: () => Promise<string | null>;
+  getApiUsage: () => Promise<{
+    dailyUsed: number;
+    dailyLimit: number;
+    totalCalls: number;
+    canMakeCall: boolean;
+    nextCallAvailable: number;
+    cacheSize: number;
+    rateLimitMessage: string;
+  }>;
   getClipboard: () => Promise<string>;
   
   // Event listeners

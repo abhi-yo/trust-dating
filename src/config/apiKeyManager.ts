@@ -6,7 +6,12 @@ interface AppConfig {
   geminiApiKey?: string;
   openaiApiKey?: string;
   anthropicApiKey?: string;
-  selectedProvider?: 'gemini' | 'openai' | 'anthropic';
+  openrouterApiKey?: string;
+  customApiKey?: string;
+  selectedProvider?: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom';
+  openrouterModel?: string;
+  customEndpoint?: string;
+  customModel?: string;
   firstRun?: boolean;
 }
 
@@ -53,7 +58,10 @@ class ApiKeyManager {
     }
   }
 
-  async setApiKey(provider: 'gemini' | 'openai' | 'anthropic', apiKey: string): Promise<void> {
+  async setApiKey(provider: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom', apiKey: string, options?: {
+    model?: string;
+    endpoint?: string;
+  }): Promise<void> {
     await this.ensureInitialized();
     switch (provider) {
       case 'gemini':
@@ -65,13 +73,22 @@ class ApiKeyManager {
       case 'anthropic':
         this.config.anthropicApiKey = apiKey;
         break;
+      case 'openrouter':
+        this.config.openrouterApiKey = apiKey;
+        this.config.openrouterModel = options?.model || 'openrouter/horizon-alpha';
+        break;
+      case 'custom':
+        this.config.customApiKey = apiKey;
+        this.config.customEndpoint = options?.endpoint;
+        this.config.customModel = options?.model;
+        break;
     }
     this.config.selectedProvider = provider;
     this.config.firstRun = false;
     await this.saveConfig();
   }
 
-  async getApiKey(provider?: 'gemini' | 'openai' | 'anthropic'): Promise<string | undefined> {
+  async getApiKey(provider?: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom'): Promise<string | undefined> {
     await this.ensureInitialized();
     const selectedProvider = provider || this.config.selectedProvider || 'gemini';
     switch (selectedProvider) {
@@ -81,8 +98,38 @@ class ApiKeyManager {
         return this.config.openaiApiKey;
       case 'anthropic':
         return this.config.anthropicApiKey;
+      case 'openrouter':
+        return this.config.openrouterApiKey;
+      case 'custom':
+        return this.config.customApiKey;
       default:
         return undefined;
+    }
+  }
+
+  async getProviderConfig(): Promise<{
+    provider: string;
+    model?: string;
+    endpoint?: string;
+  }> {
+    await this.ensureInitialized();
+    const provider = this.config.selectedProvider || 'gemini';
+    
+    switch (provider) {
+      case 'openrouter':
+        return {
+          provider,
+          model: this.config.openrouterModel || 'openrouter/horizon-alpha',
+          endpoint: 'https://openrouter.ai/api/v1'
+        };
+      case 'custom':
+        return {
+          provider,
+          model: this.config.customModel,
+          endpoint: this.config.customEndpoint
+        };
+      default:
+        return { provider };
     }
   }
 
@@ -112,6 +159,11 @@ class ApiKeyManager {
     this.config.geminiApiKey = undefined;
     this.config.openaiApiKey = undefined;
     this.config.anthropicApiKey = undefined;
+    this.config.openrouterApiKey = undefined;
+    this.config.customApiKey = undefined;
+    this.config.openrouterModel = undefined;
+    this.config.customEndpoint = undefined;
+    this.config.customModel = undefined;
     await this.saveConfig();
   }
 }

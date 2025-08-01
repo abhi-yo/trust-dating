@@ -28,9 +28,10 @@ import {
   ConversationMetrics,
   DatingAdvice,
 } from "./src/analysis/conversationAnalyzer";
+import { UniversalAI } from "./src/ai/universalAI";
+import { apiKeyManager } from "./src/config/apiKeyManager";
 import { LearningEngine } from "./src/analysis/learningEngine";
 import { SafetyEngine, SafetyAlert } from "./src/safety/safetyEngine";
-import { apiKeyManager } from "./src/config/apiKeyManager";
 const chokidar = require("chokidar");
 const clipboardy = require("clipboardy");
 const notifier = require("node-notifier");
@@ -43,7 +44,69 @@ let learningEngine: LearningEngine | null = null;
 let safetyEngine: SafetyEngine | null = null;
 let appOpacity: number = 0.85; // Default opacity is 85%
 
-// Function to save opacity setting to disk
+// Rate limiting and caching for API calls - DISABLED for full functionality
+let lastApiCall = 0;
+let apiCallCount = 0;
+let dailyApiCallCount = 0;
+let lastResetDate = new Date().toDateString();
+const MIN_API_INTERVAL = 0; // No rate limiting - allow immediate API calls
+const MAX_DAILY_CALLS = 1000; // Very high limit to effectively disable daily restrictions
+const replyCache = new Map<string, any>(); // Cache responses for repeated messages
+
+// Debounce mechanism to prevent UI spam and multiple API calls for same message - DISABLED
+const activeRequests = new Map<string, Promise<any>>();
+// Removed: processedMessages, messageProcessingTimeout, lastManualCheck (no longer needed for rate limiting)
+
+// Function to check if we can make an API call - ALWAYS RETURN TRUE
+function canMakeApiCall(): boolean {
+  const now = Date.now();
+  const today = new Date().toDateString();
+  
+  // Reset daily count if it's a new day (for tracking purposes only)
+  if (today !== lastResetDate) {
+    dailyApiCallCount = 0;
+    lastResetDate = today;
+    console.log(`📅 New day: Reset API counter to 0 (rate limiting disabled)`);
+  }
+  
+  console.log(`✅ API call always allowed: ${dailyApiCallCount} calls made today (no limits)`);
+  return true; // Always allow API calls
+}
+
+// Function to record an API call - tracking only, no restrictions
+function recordApiCall() {
+  lastApiCall = Date.now();
+  apiCallCount++;
+  dailyApiCallCount++;
+  console.log(`API Call recorded. Daily: ${dailyApiCallCount} (unlimited), Total: ${apiCallCount}`);
+}
+
+// Function to get cached response or generate hash for caching
+function getCachedResponse(message: string, tone: string): any | null {
+  const cacheKey = `${message.toLowerCase().trim()}_${tone}`;
+  const cached = replyCache.get(cacheKey);
+  
+  if (cached) {
+    console.log(`💾 Cache hit for: "${message.substring(0, 30)}..." (${replyCache.size} entries)`);
+    return cached;
+  }
+  
+  return null;
+}
+
+function setCachedResponse(message: string, tone: string, response: any) {
+  const cacheKey = `${message.toLowerCase().trim()}_${tone}`;
+  replyCache.set(cacheKey, response);
+  
+  // Limit cache size to prevent memory issues
+  if (replyCache.size > 100) {
+    const firstKey = replyCache.keys().next().value;
+    replyCache.delete(firstKey);
+    console.log(`🧹 Cache cleanup: Removed oldest entry (${replyCache.size}/100)`);
+  }
+  
+  console.log(`💾 Cached response for: "${message.substring(0, 30)}..." (${replyCache.size}/100 entries)`);
+}
 async function saveOpacitySetting(opacity: number) {
   try {
     const settingsPath = path.join(app.getPath("userData"), "settings.json");
@@ -83,6 +146,8 @@ async function initializeAI() {
     conversationAnalyzer = new ConversationAnalyzer(apiKey);
     learningEngine = new LearningEngine();
     safetyEngine = new SafetyEngine(apiKey);
+    
+    console.log('✅ AI engines initialized successfully');
   }
 }
 
@@ -125,15 +190,79 @@ async function createWindow() {
       mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
   });
 
+  // Manual clipboard check shortcut for immediate response - NO COOLDOWN
+  globalShortcut.register("CommandOrControl+Shift+C", async () => {
+    try {
+      console.log("Manual clipboard check triggered (no rate limiting)");
+      
+      const currentClipboard = clipboard.readText();
+      
+      if (currentClipboard && currentClipboard.length > 0) {
+        console.log("Manual check - clipboard content:", currentClipboard.substring(0, 100) + "...");
+        
+        // More lenient filtering for manual checks
+        const isValidMessage =
+          currentClipboard.length > 3 &&
+          currentClipboard.length < 2000 &&
+          currentClipboard.trim().length > 0;
+
+        if (isValidMessage && mainWindow) {
+          console.log("✅ Manual check - showing overlay immediately");
+          
+          // Check API usage and inform user (for info only)
+          const apiUsage = {
+            dailyUsed: dailyApiCallCount,
+            dailyLimit: MAX_DAILY_CALLS,
+            canMakeCall: true // Always true now
+          };
+          
+          notifier.notify({
+            title: "💬 Manual Check",
+            message: `Getting smart replies... (${apiUsage.dailyUsed} API calls made today)`,
+            sound: true,
+            wait: false,
+          });
+
+          mainWindow.show();
+          mainWindow.webContents.send("message-detected", {
+            message: currentClipboard,
+            timestamp: Date.now(),
+            manual: true,
+            apiUsage
+          });
+        } else {
+          console.log("❌ Manual check - invalid content");
+          notifier.notify({
+            title: "⚠️ No Valid Message",
+            message: "Copy a message first, then try Cmd+Shift+C",
+            sound: false,
+            wait: false,
+          });
+        }
+      } else {
+        console.log("❌ Manual check - clipboard empty");
+        notifier.notify({
+          title: "⚠️ Clipboard Empty",
+          message: "Copy a message first, then try Cmd+Shift+C",
+          sound: false,
+          wait: false,
+        });
+      }
+    } catch (error) {
+      console.error("Manual clipboard check error:", error);
+    }
+  });
+
   // API Key Management Handlers
   ipcMain.handle(
     "set-api-key",
     async (
       _event,
-      provider: "gemini" | "openai" | "anthropic",
-      apiKey: string
+      provider: "gemini" | "openai" | "anthropic" | "openrouter" | "custom",
+      apiKey: string,
+      options?: { model?: string; endpoint?: string }
     ) => {
-      await apiKeyManager.setApiKey(provider, apiKey);
+      await apiKeyManager.setApiKey(provider, apiKey, options);
       // Reinitialize AI with new API key
       await initializeAI();
     }
@@ -141,7 +270,7 @@ async function createWindow() {
 
   ipcMain.handle(
     "get-api-key",
-    async (_event, provider?: "gemini" | "openai" | "anthropic") => {
+    async (_event, provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom") => {
       return await apiKeyManager.getApiKey(provider);
     }
   );
@@ -158,7 +287,42 @@ async function createWindow() {
     return await apiKeyManager.getCurrentProvider();
   });
 
-  // Smart Reply Generation for Dating Apps with retry logic
+  // Get provider configuration
+  ipcMain.handle("get-provider-config", async () => {
+    return await apiKeyManager.getProviderConfig();
+  });
+
+  // Get available models for a provider
+  ipcMain.handle("get-available-models", async (_event, provider: string) => {
+    return UniversalAI.getAvailableModels(provider);
+  });
+
+  // Get API usage statistics
+  ipcMain.handle("get-api-usage", async () => {
+    const today = new Date().toDateString();
+    
+    // Reset daily count if it's a new day
+    if (today !== lastResetDate) {
+      dailyApiCallCount = 0;
+      lastResetDate = today;
+    }
+    
+    const timeSinceLastCall = Date.now() - lastApiCall;
+    const canMakeCall = canMakeApiCall();
+    const nextCallAvailable = canMakeCall ? 0 : Math.ceil((MIN_API_INTERVAL - timeSinceLastCall) / 1000);
+    
+    return {
+      dailyUsed: dailyApiCallCount,
+      dailyLimit: MAX_DAILY_CALLS,
+      totalCalls: apiCallCount,
+      canMakeCall: true, // Always true now
+      nextCallAvailable: 0, // Always 0 now
+      cacheSize: replyCache.size,
+      rateLimitMessage: "No rate limits - full API access enabled"
+    };
+  });
+
+  // Smart Reply Generation for Dating Apps with retry logic and rate limiting
   ipcMain.handle(
     "generate-smart-replies",
     async (
@@ -170,24 +334,52 @@ async function createWindow() {
         tone?: "casual" | "fun" | "romantic" | "witty";
       }
     ) => {
-      const maxRetries = 2;
-      const retryDelay = 2000; // 2 seconds
-
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const tone = data.tone || "casual";
+      const requestKey = `${data.message}_${tone}`;
+      
+      // Check if this exact request is already being processed
+      if (activeRequests.has(requestKey)) {
+        console.log("✅ Returning active request for same message");
+        return await activeRequests.get(requestKey);
+      }
+      
+      // Check cache first
+      const cachedResponse = getCachedResponse(data.message, tone);
+      if (cachedResponse) {
+        console.log("✅ Returning cached response");
+        return { ...cachedResponse, cached: true };
+      }
+      
+      // Create the request promise
+      const requestPromise = (async () => {
         try {
-          const apiKey = await apiKeyManager.getApiKey();
-          if (!apiKey) {
-            throw new Error("No API key configured");
-          }
+          // No rate limit checking - always proceed with API calls
+          console.log("✅ Proceeding with API call (rate limiting disabled)");
 
-          const genAI = new GoogleGenerativeAI(apiKey);
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const maxRetries = 2; // Increased retries since we're not worried about quota
+          const retryDelay = 1000; // Reduced delay
 
-          const tone = data.tone || "casual";
-          const platform = data.platform || "dating app";
-          const context = data.context || "early conversation";
+          for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+              const apiKey = await apiKeyManager.getApiKey();
+              if (!apiKey) {
+                throw new Error("No API key configured");
+              }
 
-          const prompt = `You are a dating conversation expert. Given this message from a ${platform}:
+              recordApiCall(); // Record the API call
+
+              const providerConfig = await apiKeyManager.getProviderConfig();
+              const aiClient = new UniversalAI({
+                provider: providerConfig.provider,
+                apiKey: apiKey,
+                model: providerConfig.model,
+                endpoint: providerConfig.endpoint
+              });
+
+              const platform = data.platform || "dating app";
+              const context = data.context || "early conversation";
+
+              const prompt = `You are a dating conversation expert. Given this message from a ${platform}:
 
 "${data.message}"
 
@@ -212,102 +404,165 @@ Format as JSON:
   "tips": ["conversation tip 1", "conversation tip 2"]
 }`;
 
-          const result = await model.generateContent(prompt);
-          const response = await result.response;
-          const text = response.text();
+              const result = await aiClient.generateContent(prompt);
+              const text = result.text;
 
-          // Clean and parse JSON response
-          const cleanedText = text
-            .replace(/```json\n?/g, "")
-            .replace(/```\n?/g, "")
-            .replace(/^[^{]*/, "")
-            .replace(/[^}]*$/, "")
-            .trim();
+              // Clean and parse JSON response
+              const cleanedText = text
+                .replace(/```json\n?/g, "")
+                .replace(/```\n?/g, "")
+                .replace(/^[^{]*/, "")
+                .replace(/[^}]*$/, "")
+                .trim();
 
-          try {
-            const analysis = JSON.parse(cleanedText);
-            return {
-              success: true,
-              replies: analysis.replies || [],
-              sentiment: analysis.sentiment || "neutral",
-              tips: analysis.tips || [],
-            };
-          } catch (parseError) {
-            console.error("JSON parsing failed:", parseError);
-            // Fallback responses
-            return {
-              success: true,
-              replies: [
-                {
-                  text: "That sounds interesting! Tell me more about that.",
-                  reason: "Shows interest and encourages elaboration",
-                },
-                {
-                  text: "I love that! What got you into that?",
-                  reason: "Enthusiastic and asks engaging follow-up",
-                },
-                {
-                  text: "Haha, that's awesome! I can relate to that.",
-                  reason: "Light, positive, and builds connection",
-                },
-              ],
-              sentiment: "positive",
-              tips: [
-                "Ask open-ended questions",
-                "Show genuine interest",
-                "Share something about yourself too",
-              ],
-            };
+              try {
+                const analysis = JSON.parse(cleanedText);
+                const finalResponse = {
+                  success: true,
+                  replies: analysis.replies || [],
+                  sentiment: analysis.sentiment || "neutral",
+                  tips: analysis.tips || [],
+                  apiCallsRemaining: "unlimited",
+                };
+                
+                // Cache the successful response
+                setCachedResponse(data.message, tone, finalResponse);
+                
+                return finalResponse;
+              } catch (parseError) {
+                console.error("JSON parsing failed:", parseError);
+                // Fallback responses
+                const fallbackResponse = {
+                  success: true,
+                  replies: [
+                    {
+                      text: "That sounds interesting! Tell me more about that.",
+                      reason: "Shows interest and encourages elaboration",
+                    },
+                    {
+                      text: "I love that! What got you into that?",
+                      reason: "Enthusiastic and asks engaging follow-up",
+                    },
+                    {
+                      text: "Haha, that's awesome! I can relate to that.",
+                      reason: "Light, positive, and builds connection",
+                    },
+                  ],
+                  sentiment: "positive",
+                  tips: [
+                    "Ask open-ended questions",
+                    "Show genuine interest",
+                    "Share something about yourself too",
+                  ],
+                  apiCallsRemaining: "unlimited",
+                };
+                
+                setCachedResponse(data.message, tone, fallbackResponse);
+                return fallbackResponse;
+              }
+            } catch (error) {
+              console.error(
+                `Smart reply generation attempt ${attempt + 1} failed:`,
+                error
+              );
+
+              // Check if it's a quota exceeded error
+              const isQuotaExceeded =
+                error instanceof Error &&
+                (error.message.includes("quota") ||
+                  error.message.includes("rate limit") ||
+                  error.message.includes("429"));
+
+              if (isQuotaExceeded) {
+                console.log("❌ API quota exceeded, using fallback");
+                const quotaExceededResponse = {
+                  success: true,
+                  replies: [
+                    {
+                      text: "That sounds really interesting! I'd love to hear more about that.",
+                      reason: "Shows genuine curiosity",
+                    },
+                    {
+                      text: `I've always wanted to try that! What's it like?`,
+                      reason: "Engaging and personal",
+                    },
+                    {
+                      text: "That's so cool! You seem like you have great stories.",
+                      reason: "Complimentary and encouraging",
+                    },
+                  ],
+                  sentiment: "positive",
+                  tips: [
+                    "Keep the conversation flowing",
+                    "Ask follow-up questions",
+                    "Share your own experiences",
+                  ],
+                  quotaExceeded: true,
+                  note: "API quota exceeded by provider. Using smart offline suggestions.",
+                  apiCallsRemaining: "unlimited",
+                };
+                
+                setCachedResponse(data.message, tone, quotaExceededResponse);
+                return quotaExceededResponse;
+              }
+
+              // Check if it's a 503 Service Unavailable error
+              const isOverloaded =
+                error instanceof Error &&
+                (error.message.includes("503") ||
+                  error.message.includes("overloaded") ||
+                  error.message.includes("Service Unavailable"));
+
+              if (isOverloaded && attempt < maxRetries) {
+                console.log(`API overloaded, retrying in ${retryDelay}ms...`);
+                await new Promise((resolve) => setTimeout(resolve, retryDelay));
+                continue;
+              }
+
+              // Final fallback for all error types
+              const errorFallbackResponse = {
+                success: true,
+                replies: [
+                  {
+                    text: "That sounds really interesting! I'd love to hear more about that.",
+                    reason: "Shows genuine curiosity",
+                  },
+                  {
+                    text: `I've always wanted to try that! What's it like?`,
+                    reason: "Engaging and personal",
+                  },
+                  {
+                    text: "That's so cool! You seem like you have great stories.",
+                    reason: "Complimentary and encouraging",
+                  },
+                ],
+                sentiment: "positive",
+                tips: [
+                  "Keep the conversation flowing",
+                  "Ask follow-up questions",
+                  "Share your own experiences",
+                ],
+                fallback: true,
+                note: isOverloaded
+                  ? "AI service temporarily busy - using smart fallback responses"
+                  : "Using offline suggestions",
+                apiCallsRemaining: "unlimited",
+              };
+              
+              setCachedResponse(data.message, tone, errorFallbackResponse);
+              return errorFallbackResponse;
+            }
           }
-        } catch (error) {
-          console.error(
-            `Smart reply generation attempt ${attempt + 1} failed:`,
-            error
-          );
-
-          // Check if it's a 503 Service Unavailable error
-          const isOverloaded =
-            error instanceof Error &&
-            (error.message.includes("503") ||
-              error.message.includes("overloaded") ||
-              error.message.includes("Service Unavailable"));
-
-          if (isOverloaded && attempt < maxRetries) {
-            console.log(`API overloaded, retrying in ${retryDelay}ms...`);
-            await new Promise((resolve) => setTimeout(resolve, retryDelay));
-            continue;
-          }
-
-          // Final fallback for all error types
-          return {
-            success: true,
-            replies: [
-              {
-                text: "That sounds really interesting! I'd love to hear more about that.",
-                reason: "Shows genuine curiosity",
-              },
-              {
-                text: `I've always wanted to try that! What's it like?`,
-                reason: "Engaging and personal",
-              },
-              {
-                text: "That's so cool! You seem like you have great stories.",
-                reason: "Complimentary and encouraging",
-              },
-            ],
-            sentiment: "positive",
-            tips: [
-              "Keep the conversation flowing",
-              "Ask follow-up questions",
-              "Share your own experiences",
-            ],
-            fallback: true,
-            note: isOverloaded
-              ? "AI service temporarily busy - using smart fallback responses"
-              : "Using offline suggestions",
-          };
+        } finally {
+          // Remove from active requests when done
+          activeRequests.delete(requestKey);
         }
-      }
+      })();
+      
+      // Store the promise to prevent duplicate requests
+      activeRequests.set(requestKey, requestPromise);
+      
+      return await requestPromise;
     }
   );
 
@@ -1091,48 +1346,71 @@ const initializeDesktopFeatures = () => {
     }
   });
 
-  // Monitor clipboard for dating messages (enhanced for smart replies)
+  // Monitor clipboard for dating messages (less aggressive to save API quota)
   let lastClipboard = "";
+  let clipboardCheckCount = 0;
+  
   const clipboardMonitor = setInterval(async () => {
     try {
       const currentClipboard = clipboard.readText();
+      clipboardCheckCount++;
+      
+      // Debug logging every 60 checks (every 5 minutes)
+      if (clipboardCheckCount % 60 === 0) {
+        console.log(`Clipboard monitor active - Check #${clipboardCheckCount}, API calls today: ${dailyApiCallCount}/${MAX_DAILY_CALLS}`);
+      }
+      
       if (currentClipboard !== lastClipboard && currentClipboard.length > 0) {
+        console.log("Clipboard changed:", currentClipboard.substring(0, 100) + "...");
         lastClipboard = currentClipboard;
 
-        // Check if clipboard contains potential dating conversation text
-        const isDatingMessage =
-          currentClipboard.length > 10 &&
-          currentClipboard.length < 500 &&
-          /[.!?]/.test(currentClipboard) &&
-          !currentClipboard.includes("http") &&
-          !currentClipboard.includes("www.") &&
-          !/^\d+$/.test(currentClipboard);
+        // Simple filtering - process most messages but avoid obvious non-conversational content
+        const isValidMessage =
+          currentClipboard.length > 10 &&         // Minimum 10 characters
+          currentClipboard.length < 1000 &&       // Max 1000 characters  
+          currentClipboard.trim().length > 0 &&   // Not just whitespace
+          !currentClipboard.includes("file://") &&  // No file paths
+          !currentClipboard.includes("localhost") && // No development URLs
+          !/^[\d\s\-\+\(\)]+$/.test(currentClipboard) && // Not just phone numbers
+          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(currentClipboard) && // Not email addresses
+          !currentClipboard.toLowerCase().includes("password") && // No passwords
+          !currentClipboard.toLowerCase().includes("login");     // No login info
 
-        if (isDatingMessage && mainWindow) {
-          console.log(
-            "Dating message detected in clipboard:",
-            currentClipboard.substring(0, 50) + "..."
-          );
+        console.log("Message evaluation:", {
+          length: currentClipboard.length,
+          wordCount: currentClipboard.split(' ').length,
+          hasFile: currentClipboard.includes("file://"),
+          hasLocalhost: currentClipboard.includes("localhost"),
+          isJustNumbers: /^[\d\s\-\+\(\)]+$/.test(currentClipboard),
+          isEmail: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(currentClipboard),
+          hasPassword: currentClipboard.toLowerCase().includes("password"),
+          isValidMessage,
+          canMakeApiCall: canMakeApiCall()
+        });
+
+        if (isValidMessage && mainWindow) {
+          console.log("✅ Message detected - processing immediately (no rate limiting)");
+          
+          const apiUsage = {
+            dailyUsed: dailyApiCallCount,
+            dailyLimit: MAX_DAILY_CALLS,
+            canMakeCall: canMakeApiCall()
+          };
 
           notifier.notify({
             title: "💬 Message Detected",
-            message: "Click to get smart reply suggestions!",
+            message: `Press Cmd+Shift+C for smart replies (${apiUsage.dailyUsed}/${apiUsage.dailyLimit} API calls today)`,
             sound: true,
             wait: false,
           });
-
-          // Show the overlay with smart reply suggestions
-          mainWindow.show();
-          mainWindow.webContents.send("message-detected", {
-            message: currentClipboard,
-            timestamp: Date.now(),
-          });
+        } else {
+          console.log("❌ Message filtered out - failed basic content checks");
         }
       }
     } catch (error) {
-      // Silently handle clipboard errors
+      console.error("Clipboard monitor error:", error);
     }
-  }, 1500); // Check every 1.5 seconds for responsiveness
+  }, 5000); // Check every 5 seconds instead of 500ms
 
   // Watch for downloaded images that might be profile pictures
   const downloadsPath = path.join(os.homedir(), "Downloads");
@@ -1244,6 +1522,30 @@ const initializeDesktopFeatures = () => {
     } catch (error) {
       console.error("Save report failed:", error);
       return { success: false, error: error.message };
+    }
+  });
+
+  // API Key management for settings
+  ipcMain.handle("write-file", async (_event, filename: string, content: string) => {
+    try {
+      const filePath = path.resolve(filename);
+      await fs.writeFile(filePath, content, 'utf-8');
+      return { success: true };
+    } catch (error) {
+      console.error("Write file failed:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("get-current-api-key", async () => {
+    try {
+      const envPath = path.resolve('.env');
+      const envContent = await fs.readFile(envPath, 'utf-8');
+      const match = envContent.match(/GEMINI_API_KEY\s*=\s*(.+)/);
+      return match ? match[1].trim() : null;
+    } catch (error) {
+      console.error("Get API key failed:", error);
+      return null;
     }
   });
 

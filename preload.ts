@@ -2,13 +2,15 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   // API Key Management
-  setApiKey: (provider: "gemini" | "openai" | "anthropic", apiKey: string) =>
-    ipcRenderer.invoke("set-api-key", provider, apiKey),
-  getApiKey: (provider?: "gemini" | "openai" | "anthropic") =>
+  setApiKey: (provider: "gemini" | "openai" | "anthropic" | "openrouter" | "custom", apiKey: string, options?: { model?: string; endpoint?: string }) =>
+    ipcRenderer.invoke("set-api-key", provider, apiKey, options),
+  getApiKey: (provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom") =>
     ipcRenderer.invoke("get-api-key", provider),
   hasValidApiKey: () => ipcRenderer.invoke("has-valid-api-key"),
   isFirstRun: () => ipcRenderer.invoke("is-first-run"),
   getCurrentProvider: () => ipcRenderer.invoke("get-current-provider"),
+  getProviderConfig: () => ipcRenderer.invoke("get-provider-config"),
+  getAvailableModels: (provider: string) => ipcRenderer.invoke("get-available-models", provider),
 
   // Smart Reply Generation
   generateSmartReplies: (data: {
@@ -70,6 +72,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setAppOpacity: (opacity: number) =>
     ipcRenderer.invoke("set-app-opacity", opacity),
   getAppOpacity: () => ipcRenderer.invoke("get-app-opacity"),
+
+  // API Key management for settings
+  writeFile: (filename: string, content: string) =>
+    ipcRenderer.invoke("write-file", filename, content),
+  getCurrentApiKey: () => ipcRenderer.invoke("get-current-api-key"),
+  getApiUsage: () => ipcRenderer.invoke("get-api-usage"),
 
   // Event listeners for desktop features
   onUrlDetected: (callback: (url: string) => void) =>

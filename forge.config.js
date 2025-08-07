@@ -20,21 +20,28 @@ module.exports = {
     // Include renderer-dist and exclude unnecessary files
     ignore: [
       /^\/renderer(?!-dist)/, // Ignore renderer source but keep renderer-dist
-      /^\/src$/, // Ignore src directory
+      /^\/src(?!\/ai)/, // Ignore src directory but keep src/ai
       /\.ts$/, // Ignore TypeScript source files
       /\.tsx$/, // Ignore TypeScript React source files
-      /node_modules\/(?!(@google\/generative-ai|auto-launch|axios|chokidar|clipboardy|electron-next|electron-squirrel-startup|electron-store|natural|next|node-notifier|react|react-dom|screenshot-desktop|sentiment|sqlite3|zustand))/,
+      /^\/manual-package\.sh$/,
+      /^\/forge\.config\.js$/,
+      /^\/\.git/,
+      /^\/\.vscode/,
+      /^\/\.env$/,
     ],
-    // Remove Sharp and other native modules we no longer use
+    // Unpack native modules that need to be accessible at runtime
     asarUnpack: [
       "**/node_modules/sqlite3/**/*",
-      "**/node_modules/better-sqlite3/**/*",
+      "**/node_modules/@google/generative-ai/**/*",
+      "**/node_modules/screenshot-desktop/**/*",
+      "**/node_modules/node-notifier/**/*",
     ],
   },
   rebuildConfig: {
     // Rebuild native modules for the target platform
     force: true,
     types: ["prod", "optional"],
+    onlyModules: ["sqlite3", "screenshot-desktop", "node-notifier"],
   },
   makers: [
     {
@@ -48,6 +55,21 @@ module.exports = {
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
+    },
+    {
+      name: "@electron-forge/maker-dmg",
+      config: {
+        name: "Smart Dating Assistant",
+        title: "Smart Dating Assistant Installer",
+      },
+    },
+    {
+      name: "@electron-forge/maker-deb",
+      config: {},
+    },
+    {
+      name: "@electron-forge/maker-rpm",
+      config: {},
     },
   ],
   plugins: [

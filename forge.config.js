@@ -1,5 +1,6 @@
 const { FusesPlugin } = require("@electron-forge/plugin-fuses");
 const { FuseV1Options, FuseVersion } = require("@electron/fuses");
+const path = require("path");
 
 module.exports = {
   packagerConfig: {
@@ -11,6 +12,8 @@ module.exports = {
         : "Smart Dating Assistant",
     appBundleId: "com.smartdating.assistant",
     appCategoryType: "public.app-category.social-networking",
+    // Base icon path without extension; provide app.icns (mac) and app.ico (win)
+    icon: path.resolve(__dirname, "assets", "icons", "app"),
     protocols: [
       {
         name: "Smart Dating Assistant",
@@ -50,6 +53,8 @@ module.exports = {
         name: "smart-dating-assistant",
         authors: "Smart Dating Assistant Team",
         description: "Your privacy-focused dating conversation helper",
+        // Windows installer icon
+        setupIcon: path.resolve(__dirname, "assets", "icons", "app.ico"),
       },
     },
     {
@@ -61,6 +66,8 @@ module.exports = {
       config: {
         name: "Smart Dating Assistant",
         title: "Smart Dating Assistant Installer",
+        // DMG window icon (optional but nice)
+        icon: path.resolve(__dirname, "assets", "icons", "app.icns"),
       },
     },
     {
@@ -71,6 +78,20 @@ module.exports = {
       name: "@electron-forge/maker-rpm",
       config: {},
     },
+  ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "abhi-yo",
+          name: "trust-dating-releases"
+        },
+        draft: true,
+        prerelease: false,
+        tagPrefix: "v"
+      }
+    }
   ],
   plugins: [
     {

@@ -18,7 +18,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "build": "pnpm run build-ts && pnpm run build-renderer",
-    "dist": "pnpm run build && electron-forge make"
+    "dist": "pnpm run build && electron-forge make",
+    "publish": "pnpm run build && electron-forge publish"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -57,6 +58,7 @@
     "concurrently": "^8.0.0",
     "electron": "^37.2.4",
     "electron-packager": "^17.1.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@electron-forge/publisher-github": "^7.8.1"
   }
 }

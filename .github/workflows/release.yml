@@ -26,10 +26,8 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Enable corepack
-        run: corepack enable
-      - name: Prepare pnpm 9
-        run: corepack prepare pnpm@9 --activate
+      - name: Install pnpm 9
+        run: npm i -g pnpm@9
       - name: Install deps
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
@@ -45,10 +43,8 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Enable corepack
-        run: corepack enable
-      - name: Prepare pnpm 9
-        run: corepack prepare pnpm@9 --activate
+      - name: Install pnpm 9
+        run: npm i -g pnpm@9
       - name: Install deps
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
@@ -64,12 +60,9 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Enable corepack
+      - name: Install pnpm 9
         shell: bash
-        run: corepack enable
-      - name: Prepare pnpm 9
-        shell: bash
-        run: corepack prepare pnpm@9 --activate
+        run: npm i -g pnpm@9
       - name: Install deps
         shell: bash
         run: pnpm install --frozen-lockfile --prefer-offline

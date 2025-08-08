@@ -12,17 +12,17 @@
   "scripts": {
     "start": "electron-forge start",
     "build-ts": "tsc",
-    "dev": "concurrently \"pnpm next-dev\" \"electron-forge start\"",
+    "dev": "concurrently \"npm run next-dev\" \"electron-forge start\"",
     "next-dev": "next dev renderer",
     "build-renderer": "cd renderer && NODE_ENV=production next build",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "build": "pnpm run build-ts && pnpm run build-renderer",
-    "dist": "pnpm run build && electron-forge make",
-    "make:mac-arm64": "pnpm run build && electron-forge make --platform=darwin --arch=arm64",
-    "make:mac-x64": "pnpm run build && electron-forge make --platform=darwin --arch=x64",
-    "make:win-x64": "pnpm run build && electron-forge make --platform=win32 --arch=x64",
-    "publish": "pnpm run build && electron-forge publish"
+    "build": "npm run build-ts && npm run build-renderer",
+    "dist": "npm run build && electron-forge make",
+    "make:mac-arm64": "npm run build && electron-forge make --platform=darwin --arch=arm64",
+    "make:mac-x64": "npm run build && electron-forge make --platform=darwin --arch=x64",
+    "make:win-x64": "npm run build && electron-forge make --platform=win32 --arch=x64",
+    "publish": "npm run build && electron-forge publish"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -1,34 +1,39 @@
 # Trust Dating Assistant
 
-A powerful Electron-based dating companion that provides AI-powered smart replies, conversation analysis, and trust verification for online dating. Built with modern web technologies and designed as a floating overlay for seamless integration with any dating platform.
+An open-source desktop application that provides AI-assisted smart replies, conversation analysis, and safety checks for online conversations. The app runs locally; you bring your own AI API key (Gemini, OpenAI, Anthropic, OpenRouter).
 
 ## Features
 
-### 🧠 **Smart Reply Generation**
+### Smart Reply Generation
+
 - AI-powered response suggestions with multiple tone options (casual, fun, romantic, witty)
 - Context-aware replies that match conversation flow
 - Unlimited API access with intelligent caching
 - Real-time clipboard monitoring for instant suggestions
 
-### 💬 **Conversation Analysis**
+### Conversation Analysis
+
 - **Interest Analysis**: Extract and analyze shared interests from conversations
 - **Conversation Quality**: Assess engagement levels, emotional depth, and reciprocity
 - **Catfish Detection**: Advanced AI analysis to identify potential fake profiles
 - Comprehensive conversation metrics and insights
 
-### 🛡️ **Trust & Safety**
+### Trust & Safety
+
 - **Trust Verification**: Analyze dating profiles and websites for authenticity
 - Real-time safety alerts and red flag detection
 - Profile verification with image analysis capabilities
 - Safety recommendations and best practices
 
-### 🎯 **Smart Features**
+### Smart Features
+
 - **Activity Suggestions**: Personalized date ideas based on shared interests
 - **Desktop Integration**: Screenshot capture, file monitoring, system tray
 - **Multi-Provider AI**: Support for Gemini, OpenAI, Anthropic, OpenRouter, and custom endpoints
 - **Overlay Mode**: Always-on-top floating window with customizable opacity
 
-### ⚡ **Advanced Capabilities**
+### Advanced Capabilities
+
 - Intelligent conversation learning and pattern recognition
 - Personalized advice based on dating goals and preferences
 - Advanced conversation metrics and success tracking
@@ -44,17 +49,20 @@ A powerful Electron-based dating companion that provides AI-powered smart replie
 ## Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/abhi-yo/trust-dating.git
    cd trust-dating
    ```
 
 2. **Install dependencies**
+
    ```bash
    pnpm install
    ```
 
 3. **Start the application**
+
    ```bash
    pnpm start
    ```
@@ -67,12 +75,14 @@ A powerful Electron-based dating companion that provides AI-powered smart replie
 ## Development
 
 ### Running in Development Mode
+
 ```bash
 # Start development server with hot reload
 pnpm dev
 ```
 
 ### Building the Application
+
 ```bash
 # Build TypeScript and renderer
 pnpm build
@@ -86,6 +96,7 @@ pnpm build-renderer # Build Next.js renderer only
 ```
 
 ### Available Scripts
+
 - `pnpm start` - Start the production app
 - `pnpm dev` - Development mode with hot reload
 - `pnpm build` - Build all components
@@ -95,37 +106,44 @@ pnpm build-renderer # Build Next.js renderer only
 ## Usage
 
 ### Keyboard Shortcuts
+
 - **`Cmd/Ctrl + Shift + O`** - Toggle overlay visibility
 - **`Cmd/Ctrl + Shift + C`** - Manual clipboard check for smart replies
 
 ### Core Features
 
-#### 🧠 Smart Reply Generation
+#### Smart Reply Generation
+
 1. Copy any dating message to your clipboard
 2. The app automatically detects conversation content
 3. Press `Cmd+Shift+C` or wait for auto-detection
 4. Get AI-powered reply suggestions with explanations
 5. Choose your preferred tone (casual, fun, romantic, witty)
 
-#### 💬 Conversation Analysis
+#### Conversation Analysis
+
 - **Interest Analyzer**: Paste conversations to extract shared interests
 - **Quality Assessment**: Get detailed conversation health metrics
 - **Catfish Detection**: Upload profile images or analyze profiles for authenticity
 
-#### 🛡️ Trust Verification
+#### Trust Verification
+
 - Enter dating profile URLs for comprehensive trust analysis
 - Get verification scores and red flag warnings
 - Receive safety recommendations and best practices
 
-#### 🎯 Activity Suggestions
+#### Activity Suggestions
+
 - Based on analyzed interests, get personalized date ideas
 - AI-generated activity recommendations
 - Tailored suggestions for your location and preferences
 
 ### Navigation
-Access all features through the hamburger menu (☰) in the top-left corner:
+
+Access features from the header menu:
+
 - **Smart Reply** - Main AI reply generation
-- **Interest Analysis** - Extract interests from conversations  
+- **Interest Analysis** - Extract interests from conversations
 - **Catfish Detection** - Profile and image verification
 - **Conversation Quality** - Detailed conversation metrics
 - **Settings** - AI provider configuration and app preferences
@@ -133,6 +151,7 @@ Access all features through the hamburger menu (☰) in the top-left corner:
 ## Architecture
 
 ### Application Structure
+
 ```
 trust-dating/
 ├── main.ts                 # Electron main process
@@ -150,6 +169,7 @@ trust-dating/
 ```
 
 ### Key Components
+
 - **Main Process** (`main.ts`) - Core Electron application logic
 - **Preload Script** (`preload.ts`) - Secure communication bridge between main and renderer
 - **Universal AI** (`src/ai/`) - Multi-provider AI client supporting various APIs
@@ -158,21 +178,24 @@ trust-dating/
 - **React UI** (`renderer/`) - Modern web-based user interface
 
 ### Data Flow
+
 1. **Input Detection** - Clipboard monitoring or manual input
 2. **AI Processing** - Universal AI client handles API requests
 3. **Analysis** - Multiple analysis engines process the data
 4. **UI Updates** - React components display results
 5. **Caching** - Intelligent response caching for performance
 
-## Technologies
+## Technology
 
 ### Core Framework
+
 - **Electron 25+** - Cross-platform desktop application framework
 - **Next.js 14** - React framework with SSG and TypeScript support
 - **React 18** - Modern UI library with hooks and concurrent features
 - **TypeScript 5** - Type-safe development
 
 ### AI & Analysis
+
 - **Universal AI Client** - Multi-provider AI integration
 - **Gemini AI** - Google's advanced language model
 - **OpenAI GPT** - ChatGPT and GPT-4 support
@@ -180,6 +203,7 @@ trust-dating/
 - **OpenRouter** - Access to multiple AI models
 
 ### Desktop Integration
+
 - **Clipboard Monitoring** - Real-time message detection
 - **Global Shortcuts** - System-wide keyboard shortcuts
 - **Notifications** - Native desktop notifications
@@ -187,6 +211,7 @@ trust-dating/
 - **System Tray** - Background operation support
 
 ### Development Tools
+
 - **PNPM** - Fast, disk-efficient package manager
 - **Electron Forge** - Build and packaging toolkit
 - **ESLint & Prettier** - Code quality and formatting
@@ -195,6 +220,7 @@ trust-dating/
 ## Configuration
 
 ### Supported AI Providers
+
 - **Google Gemini** (Recommended) - Best performance and accuracy
 - **OpenAI** - GPT-3.5/GPT-4 support
 - **Anthropic** - Claude models
@@ -202,6 +228,7 @@ trust-dating/
 - **Custom Endpoints** - Self-hosted or other API-compatible services
 
 ### Environment Variables (Optional)
+
 ```bash
 # For development/testing
 GEMINI_API_KEY=your_gemini_key
@@ -209,7 +236,9 @@ OPENAI_API_KEY=your_openai_key
 ```
 
 ### App Settings
+
 All settings are managed through the in-app Settings panel:
+
 - AI provider selection and configuration
 - Model selection (when supported)
 - Custom endpoint configuration
@@ -226,15 +255,41 @@ All settings are managed through the in-app Settings panel:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](LICENSE) for details.
 
-## Support
+## Build and Release
 
-For support, feature requests, or bug reports:
-- Create an issue on GitHub
-- Check the [Wiki](https://github.com/abhi-yo/trust-dating/wiki) for documentation
-- Join our community discussions
+### Local build
+
+1. Install dependencies: `pnpm install`
+2. Build: `pnpm run build`
+3. Make installers:
+   - macOS (Apple Silicon): `pnpm run make:mac-arm64`
+   - macOS (Intel): `pnpm run make:mac-x64`
+   - Windows x64: `pnpm run make:win-x64`
+
+Artifacts are written to `out/`. The renderer is static-exported to `renderer-dist` and loaded via file URLs. Icons live in `assets/icons/`.
+
+### Publish to GitHub Releases
+
+We use Electron Forge’s GitHub publisher. Provide an environment variable `GH_TOKEN` (fine‑grained PAT with Contents: read/write; Metadata: read). Locally:
+
+```bash
+export GH_TOKEN=YOUR_TOKEN
+pnpm run publish  # builds then publishes for the current platform
+```
+
+CI publishing is available via `.github/workflows/release.yml`. Push a tag like `v1.0.0` to trigger macOS arm64/x64 and Windows x64 builds and a draft release.
+
+## Privacy and Local-Only Behavior
+
+- Renderer assets use relative paths and load from disk.
+- No telemetry or analytics. Network calls only occur when you use an AI provider.
+- Connectivity check does not ping third-party hosts.
+- DM Sans is bundled locally; no remote fonts are fetched.
 
 ---
 
-**Built with ❤️ for the modern dating experience**
+---
+
+Maintainers welcome community contributions. Please open issues and pull requests in the repository.

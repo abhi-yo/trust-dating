@@ -19,6 +19,9 @@
     "make": "electron-forge make",
     "build": "pnpm run build-ts && pnpm run build-renderer",
     "dist": "pnpm run build && electron-forge make",
+    "make:mac-arm64": "pnpm run build && electron-forge make --platform=darwin --arch=arm64",
+    "make:mac-x64": "pnpm run build && electron-forge make --platform=darwin --arch=x64",
+    "make:win-x64": "pnpm run build && electron-forge make --platform=win32 --arch=x64",
     "publish": "pnpm run build && electron-forge publish"
   },
   "dependencies": {
@@ -51,6 +54,7 @@
     "@electron-forge/maker-zip": "^7.8.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
     "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron-forge/publisher-github": "^7.8.3",
     "@electron/fuses": "^1.8.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
@@ -58,7 +62,6 @@
     "concurrently": "^8.0.0",
     "electron": "^37.2.4",
     "electron-packager": "^17.1.2",
-    "typescript": "^5.0.0",
-    "@electron-forge/publisher-github": "^7.8.1"
+    "typescript": "^5.0.0"
   }
 }

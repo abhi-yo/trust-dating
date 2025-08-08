@@ -106,7 +106,7 @@ module.exports = {
       name: "@electron-forge/plugin-auto-unpack-natives",
       config: {
         // Ensure native modules are properly unpacked
-        packageManager: "pnpm",
+        packageManager: "npm",
       },
     },
     // Fuses are used to enable/disable various Electron functionality

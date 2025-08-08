@@ -26,16 +26,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Explicitly NO cache parameter to avoid lockfile detection
-      - name: Install pnpm
-        run: npm i -g pnpm@9
-      - name: pnpm version
-        run: pnpm -v
-      - name: Install deps (pnpm)
-        run: pnpm install --frozen-lockfile
+      - name: Install deps (npm)
+        run: npm install
       - name: Build
-        run: pnpm run build
+        run: npm run build
       - name: Publish (Windows x64)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: pnpm exec electron-forge publish --platform=win32 --arch=x64
+        run: npx electron-forge publish --platform=win32 --arch=x64

@@ -14,6 +14,7 @@ import {
 } from "electron";
 import * as path from "path";
 import * as os from "os";
+import { pathToFileURL } from "url";
 import { promises as fs } from "fs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
@@ -32,6 +33,7 @@ import { UniversalAI } from "./src/ai/universalAI";
 import { apiKeyManager } from "./src/config/apiKeyManager";
 import { LearningEngine } from "./src/analysis/learningEngine";
 import { SafetyEngine, SafetyAlert } from "./src/safety/safetyEngine";
+import { AiSafetyAnalyzer } from "./src/safety/aiSafetyAnalyzer";
 const chokidar = require("chokidar");
 const clipboardy = require("clipboardy");
 const notifier = require("node-notifier");
@@ -42,6 +44,7 @@ let mainWindow: BrowserWindow | null;
 let conversationAnalyzer: ConversationAnalyzer | null = null;
 let learningEngine: LearningEngine | null = null;
 let safetyEngine: SafetyEngine | null = null;
+let aiSafetyAnalyzer: AiSafetyAnalyzer | null = null;
 let appOpacity: number = 0.85; // Default opacity is 85%
 
 // Rate limiting and caching for API calls - DISABLED for full functionality
@@ -61,15 +64,17 @@ const activeRequests = new Map<string, Promise<any>>();
 function canMakeApiCall(): boolean {
   const now = Date.now();
   const today = new Date().toDateString();
-  
+
   // Reset daily count if it's a new day (for tracking purposes only)
   if (today !== lastResetDate) {
     dailyApiCallCount = 0;
     lastResetDate = today;
     console.log(`📅 New day: Reset API counter to 0 (rate limiting disabled)`);
   }
-  
-  console.log(`✅ API call always allowed: ${dailyApiCallCount} calls made today (no limits)`);
+
+  console.log(
+    `✅ API call always allowed: ${dailyApiCallCount} calls made today (no limits)`
+  );
   return true; // Always allow API calls
 }
 
@@ -78,34 +83,46 @@ function recordApiCall() {
   lastApiCall = Date.now();
   apiCallCount++;
   dailyApiCallCount++;
-  console.log(`API Call recorded. Daily: ${dailyApiCallCount} (unlimited), Total: ${apiCallCount}`);
+  console.log(
+    `API Call recorded. Daily: ${dailyApiCallCount} (unlimited), Total: ${apiCallCount}`
+  );
 }
 
 // Function to get cached response or generate hash for caching
 function getCachedResponse(message: string, tone: string): any | null {
   const cacheKey = `${message.toLowerCase().trim()}_${tone}`;
   const cached = replyCache.get(cacheKey);
-  
+
   if (cached) {
-    console.log(`💾 Cache hit for: "${message.substring(0, 30)}..." (${replyCache.size} entries)`);
+    console.log(
+      `💾 Cache hit for: "${message.substring(0, 30)}..." (${
+        replyCache.size
+      } entries)`
+    );
     return cached;
   }
-  
+
   return null;
 }
 
 function setCachedResponse(message: string, tone: string, response: any) {
   const cacheKey = `${message.toLowerCase().trim()}_${tone}`;
   replyCache.set(cacheKey, response);
-  
+
   // Limit cache size to prevent memory issues
   if (replyCache.size > 100) {
     const firstKey = replyCache.keys().next().value;
     replyCache.delete(firstKey);
-    console.log(`🧹 Cache cleanup: Removed oldest entry (${replyCache.size}/100)`);
+    console.log(
+      `🧹 Cache cleanup: Removed oldest entry (${replyCache.size}/100)`
+    );
   }
-  
-  console.log(`💾 Cached response for: "${message.substring(0, 30)}..." (${replyCache.size}/100 entries)`);
+
+  console.log(
+    `💾 Cached response for: "${message.substring(0, 30)}..." (${
+      replyCache.size
+    }/100 entries)`
+  );
 }
 async function saveOpacitySetting(opacity: number) {
   try {
@@ -146,8 +163,23 @@ async function initializeAI() {
     conversationAnalyzer = new ConversationAnalyzer(apiKey);
     learningEngine = new LearningEngine();
     safetyEngine = new SafetyEngine(apiKey);
-    
-    console.log('✅ AI engines initialized successfully');
+    const providerCfg = await apiKeyManager.getProviderConfig();
+    const apiKeyForProvider = await apiKeyManager.getApiKey(
+      providerCfg.provider as any
+    );
+    aiSafetyAnalyzer = new AiSafetyAnalyzer();
+    if (apiKeyForProvider) {
+      aiSafetyAnalyzer.initialize(
+        new UniversalAI({
+          provider: providerCfg.provider,
+          apiKey: apiKeyForProvider,
+          model: providerCfg.model,
+          endpoint: providerCfg.endpoint,
+        })
+      );
+    }
+
+    console.log("✅ AI engines initialized successfully");
   }
 }
 
@@ -163,6 +195,10 @@ async function createWindow() {
   // Initialize AI systems
   await initializeAI();
 
+  const firstRun = await apiKeyManager.isFirstRun();
+  const hasKey = await apiKeyManager.hasValidApiKey();
+  const initialOpacity = !hasKey || firstRun ? 1.0 : appOpacity;
+
   mainWindow = new BrowserWindow({
     width: 400,
     height: 600,
@@ -171,7 +207,32 @@ async function createWindow() {
     alwaysOnTop: true,
     resizable: true,
     movable: true,
-    opacity: appOpacity,
+    opacity: initialOpacity,
+    icon: (() => {
+      try {
+        const iconPath = app.isPackaged
+          ? path.join(
+              process.resourcesPath,
+              "assets",
+              "icons",
+              process.platform === "win32"
+                ? "trustdating-icon.ico"
+                : "trustdating.icns"
+            )
+          : path.resolve(
+              process.cwd(),
+              "assets",
+              "icons",
+              process.platform === "win32"
+                ? "trustdating-icon.ico"
+                : "trustdating.icns"
+            );
+        const img = nativeImage.createFromPath(iconPath);
+        return img.isEmpty() ? undefined : img;
+      } catch {
+        return undefined;
+      }
+    })(),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -180,7 +241,13 @@ async function createWindow() {
   });
 
   if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, "renderer-dist/index.html"));
+    const indexHtmlPath = path.resolve(
+      __dirname,
+      "..",
+      "renderer-dist",
+      "index.html"
+    );
+    mainWindow.loadURL(pathToFileURL(indexHtmlPath).toString());
   } else {
     mainWindow.loadURL("http://localhost:3002");
   }
@@ -194,28 +261,29 @@ async function createWindow() {
   globalShortcut.register("CommandOrControl+Shift+C", async () => {
     try {
       console.log("Manual clipboard check triggered (no rate limiting)");
-      
+
       const currentClipboard = clipboard.readText();
-      
+
       if (currentClipboard && currentClipboard.length > 0) {
-        console.log("Manual check - clipboard content:", currentClipboard.substring(0, 100) + "...");
-        
-        // More lenient filtering for manual checks
+        console.log(
+          "Manual check - clipboard content:",
+          currentClipboard.substring(0, 100) + "..."
+        );
+
+        // Accept any non-empty text for manual checks
         const isValidMessage =
-          currentClipboard.length > 3 &&
-          currentClipboard.length < 2000 &&
-          currentClipboard.trim().length > 0;
+          currentClipboard.trim().length > 0 && currentClipboard.length < 5000;
 
         if (isValidMessage && mainWindow) {
           console.log("✅ Manual check - showing overlay immediately");
-          
+
           // Check API usage and inform user (for info only)
           const apiUsage = {
             dailyUsed: dailyApiCallCount,
             dailyLimit: MAX_DAILY_CALLS,
-            canMakeCall: true // Always true now
+            canMakeCall: true, // Always true now
           };
-          
+
           notifier.notify({
             title: "💬 Manual Check",
             message: `Getting smart replies... (${apiUsage.dailyUsed} API calls made today)`,
@@ -228,16 +296,11 @@ async function createWindow() {
             message: currentClipboard,
             timestamp: Date.now(),
             manual: true,
-            apiUsage
+            apiUsage,
           });
         } else {
-          console.log("❌ Manual check - invalid content");
-          notifier.notify({
-            title: "⚠️ No Valid Message",
-            message: "Copy a message first, then try Cmd+Shift+C",
-            sound: false,
-            wait: false,
-          });
+          // If somehow empty, do nothing
+          console.log("Manual check: empty clipboard");
         }
       } else {
         console.log("❌ Manual check - clipboard empty");
@@ -250,6 +313,50 @@ async function createWindow() {
       }
     } catch (error) {
       console.error("Manual clipboard check error:", error);
+    }
+  });
+
+  // Privacy & Safety Center IPC handlers
+  ipcMain.handle("analyzeConversationSafety", async (_evt, messages) => {
+    try {
+      if (!aiSafetyAnalyzer)
+        throw new Error("AI safety analyzer not initialized");
+      const result = await aiSafetyAnalyzer.analyzeConversationWithAI(
+        messages,
+        true
+      );
+      // Track simple stats
+      safetyStats.totalAnalyses += 1;
+      if (result.combinedRisk > 0.3) safetyStats.riskDetected += 1;
+      safetyStats.safetyScore = Math.round((1 - result.combinedRisk) * 100);
+      return result;
+    } catch (e: any) {
+      console.error("analyzeConversationSafety failed:", e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle("quickSafetyCheck", async (_evt, message: string) => {
+    try {
+      if (!aiSafetyAnalyzer)
+        throw new Error("AI safety analyzer not initialized");
+      const quick = await aiSafetyAnalyzer.quickMessageCheck(message);
+      return quick;
+    } catch (e: any) {
+      console.error("quickSafetyCheck failed:", e);
+      throw e;
+    }
+  });
+
+  const safetyStats = { totalAnalyses: 0, riskDetected: 0, safetyScore: 100 };
+  ipcMain.handle("getSafetyStats", async () => safetyStats);
+  ipcMain.handle("getSafetyEducation", async () => {
+    try {
+      if (!aiSafetyAnalyzer) aiSafetyAnalyzer = new AiSafetyAnalyzer();
+      return aiSafetyAnalyzer.getSafetyEducation();
+    } catch (e: any) {
+      console.error("getSafetyEducation failed:", e);
+      return { generalTips: [], redFlags: [], scamWarnings: [] };
     }
   });
 
@@ -270,7 +377,10 @@ async function createWindow() {
 
   ipcMain.handle(
     "get-api-key",
-    async (_event, provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom") => {
+    async (
+      _event,
+      provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom"
+    ) => {
       return await apiKeyManager.getApiKey(provider);
     }
   );
@@ -300,17 +410,19 @@ async function createWindow() {
   // Get API usage statistics
   ipcMain.handle("get-api-usage", async () => {
     const today = new Date().toDateString();
-    
+
     // Reset daily count if it's a new day
     if (today !== lastResetDate) {
       dailyApiCallCount = 0;
       lastResetDate = today;
     }
-    
+
     const timeSinceLastCall = Date.now() - lastApiCall;
     const canMakeCall = canMakeApiCall();
-    const nextCallAvailable = canMakeCall ? 0 : Math.ceil((MIN_API_INTERVAL - timeSinceLastCall) / 1000);
-    
+    const nextCallAvailable = canMakeCall
+      ? 0
+      : Math.ceil((MIN_API_INTERVAL - timeSinceLastCall) / 1000);
+
     return {
       dailyUsed: dailyApiCallCount,
       dailyLimit: MAX_DAILY_CALLS,
@@ -318,8 +430,44 @@ async function createWindow() {
       canMakeCall: true, // Always true now
       nextCallAvailable: 0, // Always 0 now
       cacheSize: replyCache.size,
-      rateLimitMessage: "No rate limits - full API access enabled"
+      rateLimitMessage: "No rate limits - full API access enabled",
     };
+  });
+
+  // Health checks
+  ipcMain.handle("check-network-online", async () => {
+    try {
+      // Determine connectivity without contacting external hosts
+      const interfaces = os.networkInterfaces();
+      const hasExternalInterface = Object.values(interfaces).some((list) =>
+        (list || []).some(
+          (iface: any) => !iface.internal && !!iface.address && iface.family === "IPv4"
+        )
+      );
+      return { online: hasExternalInterface };
+    } catch {
+      return { online: false };
+    }
+  });
+
+  ipcMain.handle("check-provider-health", async () => {
+    try {
+      const providerConfig = await apiKeyManager.getProviderConfig();
+      // Do a lightweight HEAD to provider endpoint if available, else assume online
+      if (providerConfig.endpoint) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(providerConfig.endpoint, {
+          method: "HEAD" as any,
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        return { ok: res.ok, endpoint: providerConfig.endpoint };
+      }
+      return { ok: true };
+    } catch (e: any) {
+      return { ok: false, error: e?.message };
+    }
   });
 
   // Smart Reply Generation for Dating Apps with retry logic and rate limiting
@@ -336,20 +484,20 @@ async function createWindow() {
     ) => {
       const tone = data.tone || "casual";
       const requestKey = `${data.message}_${tone}`;
-      
+
       // Check if this exact request is already being processed
       if (activeRequests.has(requestKey)) {
         console.log("✅ Returning active request for same message");
         return await activeRequests.get(requestKey);
       }
-      
+
       // Check cache first
       const cachedResponse = getCachedResponse(data.message, tone);
       if (cachedResponse) {
         console.log("✅ Returning cached response");
         return { ...cachedResponse, cached: true };
       }
-      
+
       // Create the request promise
       const requestPromise = (async () => {
         try {
@@ -373,7 +521,7 @@ async function createWindow() {
                 provider: providerConfig.provider,
                 apiKey: apiKey,
                 model: providerConfig.model,
-                endpoint: providerConfig.endpoint
+                endpoint: providerConfig.endpoint,
               });
 
               const platform = data.platform || "dating app";
@@ -424,10 +572,10 @@ Format as JSON:
                   tips: analysis.tips || [],
                   apiCallsRemaining: "unlimited",
                 };
-                
+
                 // Cache the successful response
                 setCachedResponse(data.message, tone, finalResponse);
-                
+
                 return finalResponse;
               } catch (parseError) {
                 console.error("JSON parsing failed:", parseError);
@@ -456,7 +604,7 @@ Format as JSON:
                   ],
                   apiCallsRemaining: "unlimited",
                 };
-                
+
                 setCachedResponse(data.message, tone, fallbackResponse);
                 return fallbackResponse;
               }
@@ -501,7 +649,7 @@ Format as JSON:
                   note: "API quota exceeded by provider. Using smart offline suggestions.",
                   apiCallsRemaining: "unlimited",
                 };
-                
+
                 setCachedResponse(data.message, tone, quotaExceededResponse);
                 return quotaExceededResponse;
               }
@@ -548,7 +696,7 @@ Format as JSON:
                   : "Using offline suggestions",
                 apiCallsRemaining: "unlimited",
               };
-              
+
               setCachedResponse(data.message, tone, errorFallbackResponse);
               return errorFallbackResponse;
             }
@@ -558,10 +706,10 @@ Format as JSON:
           activeRequests.delete(requestKey);
         }
       })();
-      
+
       // Store the promise to prevent duplicate requests
       activeRequests.set(requestKey, requestPromise);
-      
+
       return await requestPromise;
     }
   );
@@ -1349,62 +1497,57 @@ const initializeDesktopFeatures = () => {
   // Monitor clipboard for dating messages (less aggressive to save API quota)
   let lastClipboard = "";
   let clipboardCheckCount = 0;
-  
+
   const clipboardMonitor = setInterval(async () => {
     try {
       const currentClipboard = clipboard.readText();
       clipboardCheckCount++;
-      
+
       // Debug logging every 60 checks (every 5 minutes)
       if (clipboardCheckCount % 60 === 0) {
-        console.log(`Clipboard monitor active - Check #${clipboardCheckCount}, API calls today: ${dailyApiCallCount}/${MAX_DAILY_CALLS}`);
+        console.log(
+          `Clipboard monitor active - Check #${clipboardCheckCount}, API calls today: ${dailyApiCallCount}/${MAX_DAILY_CALLS}`
+        );
       }
-      
+
       if (currentClipboard !== lastClipboard && currentClipboard.length > 0) {
-        console.log("Clipboard changed:", currentClipboard.substring(0, 100) + "...");
+        console.log(
+          "Clipboard changed:",
+          currentClipboard.substring(0, 100) + "..."
+        );
         lastClipboard = currentClipboard;
 
-        // Simple filtering - process most messages but avoid obvious non-conversational content
+        // Accept any non-empty text for auto detection
         const isValidMessage =
-          currentClipboard.length > 10 &&         // Minimum 10 characters
-          currentClipboard.length < 1000 &&       // Max 1000 characters  
-          currentClipboard.trim().length > 0 &&   // Not just whitespace
-          !currentClipboard.includes("file://") &&  // No file paths
-          !currentClipboard.includes("localhost") && // No development URLs
-          !/^[\d\s\-\+\(\)]+$/.test(currentClipboard) && // Not just phone numbers
-          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(currentClipboard) && // Not email addresses
-          !currentClipboard.toLowerCase().includes("password") && // No passwords
-          !currentClipboard.toLowerCase().includes("login");     // No login info
+          currentClipboard.trim().length > 0 && currentClipboard.length < 5000;
 
         console.log("Message evaluation:", {
           length: currentClipboard.length,
-          wordCount: currentClipboard.split(' ').length,
+          wordCount: currentClipboard.split(" ").length,
           hasFile: currentClipboard.includes("file://"),
           hasLocalhost: currentClipboard.includes("localhost"),
           isJustNumbers: /^[\d\s\-\+\(\)]+$/.test(currentClipboard),
-          isEmail: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(currentClipboard),
+          isEmail: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
+            currentClipboard
+          ),
           hasPassword: currentClipboard.toLowerCase().includes("password"),
           isValidMessage,
-          canMakeApiCall: canMakeApiCall()
+          canMakeApiCall: canMakeApiCall(),
         });
 
         if (isValidMessage && mainWindow) {
-          console.log("✅ Message detected - processing immediately (no rate limiting)");
-          
+          console.log("✅ Message detected - sending to renderer");
           const apiUsage = {
             dailyUsed: dailyApiCallCount,
             dailyLimit: MAX_DAILY_CALLS,
-            canMakeCall: canMakeApiCall()
+            canMakeCall: canMakeApiCall(),
           };
-
-          notifier.notify({
-            title: "💬 Message Detected",
-            message: `Press Cmd+Shift+C for smart replies (${apiUsage.dailyUsed}/${apiUsage.dailyLimit} API calls today)`,
-            sound: true,
-            wait: false,
+          mainWindow.webContents.send("message-detected", {
+            message: currentClipboard,
+            timestamp: Date.now(),
+            manual: false,
+            apiUsage,
           });
-        } else {
-          console.log("❌ Message filtered out - failed basic content checks");
         }
       }
     } catch (error) {
@@ -1526,21 +1669,24 @@ const initializeDesktopFeatures = () => {
   });
 
   // API Key management for settings
-  ipcMain.handle("write-file", async (_event, filename: string, content: string) => {
-    try {
-      const filePath = path.resolve(filename);
-      await fs.writeFile(filePath, content, 'utf-8');
-      return { success: true };
-    } catch (error) {
-      console.error("Write file failed:", error);
-      return { success: false, error: error.message };
+  ipcMain.handle(
+    "write-file",
+    async (_event, filename: string, content: string) => {
+      try {
+        const filePath = path.resolve(filename);
+        await fs.writeFile(filePath, content, "utf-8");
+        return { success: true };
+      } catch (error) {
+        console.error("Write file failed:", error);
+        return { success: false, error: error.message };
+      }
     }
-  });
+  );
 
   ipcMain.handle("get-current-api-key", async () => {
     try {
-      const envPath = path.resolve('.env');
-      const envContent = await fs.readFile(envPath, 'utf-8');
+      const envPath = path.resolve(".env");
+      const envContent = await fs.readFile(envPath, "utf-8");
       const match = envContent.match(/GEMINI_API_KEY\s*=\s*(.+)/);
       return match ? match[1].trim() : null;
     } catch (error) {
@@ -1551,8 +1697,35 @@ const initializeDesktopFeatures = () => {
 
   // Native system tray integration
   const createTray = () => {
-    // Create a simple tray icon (you can add an icon file later)
-    const tray = new Tray(nativeImage.createEmpty());
+    // Create a tray icon using app icons
+    let trayImage: Electron.NativeImage = nativeImage.createEmpty();
+    try {
+      const trayIconPath = app.isPackaged
+        ? path.join(
+            process.resourcesPath,
+            "assets",
+            "icons",
+            process.platform === "win32"
+              ? "trustdating-icon.ico"
+              : "trustdating.icns"
+          )
+        : path.resolve(
+            __dirname,
+            "assets",
+            "icons",
+            process.platform === "win32"
+              ? "trustdating-icon.ico"
+              : "trustdating.icns"
+          );
+      const img = nativeImage.createFromPath(trayIconPath);
+      if (!img.isEmpty()) {
+        trayImage =
+          process.platform === "darwin"
+            ? img.resize({ width: 16, height: 16 })
+            : img;
+      }
+    } catch {}
+    const tray = new Tray(trayImage);
     tray.setToolTip("Trust Dating Overlay");
 
     const contextMenu = Menu.buildFromTemplate([
@@ -1643,9 +1816,31 @@ async function loadAppSettings() {
 // Initialize verification system when app starts
 app.whenReady().then(async () => {
   await loadAppSettings(); // Load settings first
+  // Set Dock icon explicitly in development for macOS
+  try {
+    if (process.platform === "darwin") {
+      const dockIconPath = app.isPackaged
+        ? path.join(
+            process.resourcesPath,
+            "assets",
+            "icons",
+            "trustdating.icns"
+          )
+        : path.resolve(process.cwd(), "assets", "icons", "trustdating.icns");
+      const dockImg = nativeImage.createFromPath(dockIconPath);
+      if (!dockImg.isEmpty() && app.dock) {
+        app.dock.setIcon(dockImg);
+      }
+    }
+  } catch (e) {
+    console.warn("Dock icon set failed:", e);
+  }
   createWindow();
   initializeDesktopFeatures(); // Initialize desktop-specific features
-  if (mainWindow) mainWindow.hide();
+  // Ensure the window is visible on launch in production
+  if (mainWindow) {
+    mainWindow.on("ready-to-show", () => mainWindow && mainWindow.show());
+  }
 });
 
 app.on("will-quit", () => globalShortcut.unregisterAll());

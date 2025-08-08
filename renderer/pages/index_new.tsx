@@ -71,7 +71,7 @@ export default function Home() {
             transition: 'all 0.2s ease'
           }}
         >
-          💬 Smart Reply
+          Smart Reply
         </button>
         <button
           onClick={() => setCurrentView('settings')}
@@ -88,7 +88,7 @@ export default function Home() {
             transition: 'all 0.2s ease'
           }}
         >
-          ⚙️ Settings
+          Settings
         </button>
       </div>
 

@@ -20,14 +20,21 @@ env:
 jobs:
   windows-x64:
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install deps
-        run: npm install --no-audit --no-fund
+      - name: Install pnpm
+        run: npm i -g pnpm@9
+      - name: pnpm version
+        run: pnpm -v
+      - name: Install deps (pnpm)
+        run: pnpm install --frozen-lockfile
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Publish (Windows x64)
-        run: npx electron-forge publish --platform=win32 --arch=x64
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: pnpm exec electron-forge publish --platform=win32 --arch=x64

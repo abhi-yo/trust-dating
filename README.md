@@ -290,6 +290,4 @@ CI publishing is available via `.github/workflows/release.yml`. Push a tag like 
 
 ---
 
----
-
 Maintainers welcome community contributions. Please open issues and pull requests in the repository.

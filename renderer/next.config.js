@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
 const nextConfig = {
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
-  distDir: process.env.NODE_ENV === 'production' ? '../renderer-dist' : '.next',
-  basePath: process.env.NODE_ENV === 'production' ? '' : undefined,
+  output: isProd ? "export" : undefined,
+  distDir: isProd ? "../renderer-dist" : ".next",
+  assetPrefix: isProd ? "./" : undefined,
   trailingSlash: true,
-  images: {
-    unoptimized: true
-  }
+  images: { unoptimized: true },
 };
 
 module.exports = nextConfig;

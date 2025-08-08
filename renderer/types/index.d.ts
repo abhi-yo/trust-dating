@@ -4,7 +4,7 @@
 interface ElectronAPI {
   // AP  // Safety Analysis
   safetyCheck: (data: {
-    type: 'message' | 'profile';
+    type: "message" | "profile";
     content: string;
     conversationId?: string;
   }) => Promise<{
@@ -19,20 +19,30 @@ interface ElectronAPI {
   }>;
 
   // Trust Analysis
-  setApiKey: (provider: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom', apiKey: string, options?: { model?: string; endpoint?: string }) => Promise<void>;
-  getApiKey: (provider?: 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'custom') => Promise<string | undefined>;
+  setApiKey: (
+    provider: "gemini" | "openai" | "anthropic" | "openrouter" | "custom",
+    apiKey: string,
+    options?: { model?: string; endpoint?: string }
+  ) => Promise<void>;
+  getApiKey: (
+    provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom"
+  ) => Promise<string | undefined>;
   hasValidApiKey: () => Promise<boolean>;
   isFirstRun: () => Promise<boolean>;
   getCurrentProvider: () => Promise<string>;
-  getProviderConfig: () => Promise<{ provider: string; model?: string; endpoint?: string }>;
+  getProviderConfig: () => Promise<{
+    provider: string;
+    model?: string;
+    endpoint?: string;
+  }>;
   getAvailableModels: (provider: string) => Promise<string[]>;
-  
+
   // Smart Reply Generation
   generateSmartReplies: (data: {
     message: string;
     context?: string;
     platform?: string;
-    tone?: 'casual' | 'fun' | 'romantic' | 'witty';
+    tone?: "casual" | "fun" | "romantic" | "witty";
   }) => Promise<{
     success: boolean;
     replies: Array<{
@@ -45,15 +55,19 @@ interface ElectronAPI {
     fallback?: boolean;
     note?: string;
   }>;
-  
+
   // Enhanced conversation analysis
   processChat: (chatData: {
     conversationId: string;
     platform: string;
     contact: string;
     newMessage: string;
-    sender: 'user' | 'contact';
-    allMessages?: Array<{text: string, timestamp: number, sender: 'user' | 'contact'}>;
+    sender: "user" | "contact";
+    allMessages?: Array<{
+      text: string;
+      timestamp: number;
+      sender: "user" | "contact";
+    }>;
   }) => Promise<{
     analysis: {
       sentiment: number;
@@ -66,15 +80,15 @@ interface ElectronAPI {
       nextSteps: string[];
     };
     advice: Array<{
-      type: 'opener' | 'response' | 'topic_change' | 'escalation' | 'safety';
+      type: "opener" | "response" | "topic_change" | "escalation" | "safety";
       message: string;
       explanation: string;
       confidence: number;
-      timing: 'immediate' | 'wait_1h' | 'wait_3h' | 'wait_1d' | 'weekend';
+      timing: "immediate" | "wait_1h" | "wait_3h" | "wait_1d" | "weekend";
       context: string;
     }>;
     insights: Array<{
-      type: 'warning' | 'opportunity' | 'advice' | 'pattern';
+      type: "warning" | "opportunity" | "advice" | "pattern";
       message: string;
       confidence: number;
       timestamp: number;
@@ -83,7 +97,7 @@ interface ElectronAPI {
       trust_score: number;
       conversation_health: number;
       alerts: Array<{
-        severity: 'low' | 'medium' | 'high' | 'critical';
+        severity: "low" | "medium" | "high" | "critical";
         type: string;
         description: string;
         recommended_action: string;
@@ -100,12 +114,12 @@ interface ElectronAPI {
       reciprocity: number;
     };
   }>;
-  
+
   // Activity suggestions
   fetchActivities: (interests: string[]) => Promise<string[]>;
-  
+
   // Trust and safety analysis
-  analyzeTrust: (profileData: { url?: string, imageFile?: string }) => Promise<{
+  analyzeTrust: (profileData: { url?: string; imageFile?: string }) => Promise<{
     trustScore: number;
     verificationStatus: string;
     imageMatches: string[];
@@ -113,22 +127,22 @@ interface ElectronAPI {
     redFlags: string[];
     positiveSignals: string[];
   }>;
-  
+
   safetyCheck: (data: {
-    type: 'message' | 'profile';
+    type: "message" | "profile";
     content: string;
     conversationId?: string;
   }) => Promise<{
     safe: boolean;
     safety_score: number;
     alerts: Array<{
-      severity: 'low' | 'medium' | 'high' | 'critical';
+      severity: "low" | "medium" | "high" | "critical";
       type: string;
       description: string;
       recommended_action: string;
     }>;
   }>;
-  
+
   // Advanced dating intelligence
   getConversationInsights: (conversationId: string) => Promise<{
     insights: Array<{
@@ -139,14 +153,14 @@ interface ElectronAPI {
     }>;
     recommendations: string[];
   }>;
-  
+
   provideAdviceFeedback: (data: {
     conversationId: string;
     adviceUsed: string;
-    outcome: 'positive' | 'negative' | 'neutral';
+    outcome: "positive" | "negative" | "neutral";
     context: string;
   }) => Promise<void>;
-  
+
   getDatingDashboard: () => Promise<{
     conversations: Array<{
       id: string;
@@ -174,18 +188,34 @@ interface ElectronAPI {
       timestamp: number;
     }>;
   }>;
-  
-  updateUserPreferences: (preferences: any) => Promise<{ success: boolean; error?: string }>;
-  
+
+  updateUserPreferences: (
+    preferences: any
+  ) => Promise<{ success: boolean; error?: string }>;
+
   // Desktop-specific features
-  captureScreen: () => Promise<{ success: boolean; data?: any; error?: string }>;
-  toggleAutoLaunch: (enabled: boolean) => Promise<{ success: boolean; enabled?: boolean; error?: string }>;
-  saveVerificationReport: (reportData: any) => Promise<{ success: boolean; filePath?: string; cancelled?: boolean; error?: string }>;
+  captureScreen: () => Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }>;
+  toggleAutoLaunch: (
+    enabled: boolean
+  ) => Promise<{ success: boolean; enabled?: boolean; error?: string }>;
+  saveVerificationReport: (reportData: any) => Promise<{
+    success: boolean;
+    filePath?: string;
+    cancelled?: boolean;
+    error?: string;
+  }>;
   setAppOpacity: (opacity: number) => Promise<{ success: boolean }>;
   getAppOpacity: () => Promise<{ opacity: number }>;
-  
+
   // API Key management for settings
-  writeFile: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
+  writeFile: (
+    filename: string,
+    content: string
+  ) => Promise<{ success: boolean; error?: string }>;
   getCurrentApiKey: () => Promise<string | null>;
   getApiUsage: () => Promise<{
     dailyUsed: number;
@@ -196,22 +226,84 @@ interface ElectronAPI {
     cacheSize: number;
     rateLimitMessage: string;
   }>;
+  checkNetworkOnline: () => Promise<{ online: boolean }>;
+  checkProviderHealth: () => Promise<{
+    ok: boolean;
+    endpoint?: string;
+    error?: string;
+  }>;
   getClipboard: () => Promise<string>;
-  
+
+  // Privacy & Safety Center APIs
+  analyzeConversationSafety: (
+    messages: Array<{
+      text: string;
+      timestamp: number;
+      sender: "user" | "contact";
+    }>
+  ) => Promise<{
+    patternAnalysis: {
+      isSafe: boolean;
+      riskLevel: number;
+      alerts: Array<{
+        id: string;
+        type: "privacy" | "safety" | "scam" | "manipulation";
+        severity: "low" | "medium" | "high" | "critical";
+        title: string;
+        description: string;
+        recommendation: string;
+        confidence: number;
+        timestamp: number;
+        pattern: string;
+      }>;
+      safeTips: string[];
+    };
+    aiAnalysis?: {
+      overallRisk: number;
+      concerns: string[];
+      recommendations: string[];
+      redFlags: string[];
+      positiveSignals: string[];
+      trustScore: number;
+    };
+    combinedRisk: number;
+    finalRecommendations: string[];
+  }>;
+  quickSafetyCheck: (
+    message: string
+  ) => Promise<{
+    hasRisk: boolean;
+    riskLevel: "low" | "medium" | "high" | "critical";
+    alerts: string[];
+    tips: string[];
+  }>;
+  getSafetyEducation: () => Promise<{
+    generalTips: string[];
+    redFlags: string[];
+    scamWarnings: string[];
+  }>;
+  getSafetyStats: () => Promise<{
+    totalAnalyses: number;
+    riskDetected: number;
+    safetyScore: number;
+  }>;
+
   // Event listeners
   onUrlDetected: (callback: (url: string) => void) => void;
   onImageDetected: (callback: (filePath: string) => void) => void;
-  onMessageDetected: (callback: (data: { message: string; timestamp: number }) => void) => void;
+  onMessageDetected: (
+    callback: (data: { message: string; timestamp: number }) => void
+  ) => void;
   onShowSettings: (callback: () => void) => void;
 
   // ADVANCED VERIFICATION SYSTEM APIs
-  
+
   // Comprehensive profile verification with real algorithms
   verifyProfileComprehensive: (request: {
     photos?: string[];
     profile_urls?: string[];
     conversation_messages?: Array<{
-      sender: 'user' | 'match';
+      sender: "user" | "match";
       content: string;
       timestamp: Date;
       read_receipt?: boolean;
@@ -232,7 +324,7 @@ interface ElectronAPI {
     };
   }) => Promise<{
     overall_trust_score: number;
-    risk_level: 'very_low' | 'low' | 'medium' | 'high' | 'critical';
+    risk_level: "very_low" | "low" | "medium" | "high" | "critical";
     facial_verification: {
       consistency_across_photos: number;
       deepfake_probability: number;
@@ -277,11 +369,13 @@ interface ElectronAPI {
   }>;
 
   // Advanced conversation pattern analysis
-  analyzeConversationAdvanced: (messages: Array<{
-    sender: 'user' | 'match';
-    content: string;
-    timestamp: Date;
-  }>) => Promise<{
+  analyzeConversationAdvanced: (
+    messages: Array<{
+      sender: "user" | "match";
+      content: string;
+      timestamp: Date;
+    }>
+  ) => Promise<{
     authenticity_score: number;
     scammer_probability: number;
     bot_probability: number;
@@ -292,7 +386,7 @@ interface ElectronAPI {
       pattern_type: string;
       confidence: number;
       indicators: string[];
-      severity: 'low' | 'medium' | 'high' | 'critical';
+      severity: "low" | "medium" | "high" | "critical";
     }>;
     immediate_threats: string[];
     safety_recommendations: string[];
@@ -309,7 +403,7 @@ interface ElectronAPI {
   }) => Promise<{
     is_safe: boolean;
     trust_score: number;
-    risk_level: 'very_low' | 'low' | 'medium' | 'high' | 'critical';
+    risk_level: "very_low" | "low" | "medium" | "high" | "critical";
     critical_warnings: string[];
     immediate_threats: string[];
     verification_needed: string[];

@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,8 +29,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: false
+      - name: Enable corepack
+        run: corepack enable
       - name: Install deps
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
         run: pnpm run build
       - name: Publish (macOS arm64)
@@ -46,8 +50,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: false
+      - name: Enable corepack
+        run: corepack enable
       - name: Install deps
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
         run: pnpm run build
       - name: Publish (macOS x64)
@@ -64,9 +71,13 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: false
+      - name: Enable corepack
+        shell: bash
+        run: corepack enable
       - name: Install deps
         shell: bash
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
         shell: bash
         run: pnpm run build

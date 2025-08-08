@@ -12,8 +12,8 @@ module.exports = {
         : "Smart Dating Assistant",
     appBundleId: "com.smartdating.assistant",
     appCategoryType: "public.app-category.social-networking",
-    // Base icon path without extension; provide app.icns (mac) and app.ico (win)
-    icon: path.resolve(__dirname, "assets", "icons", "app"),
+    // Base icon (no extension). Ensure trustdating.icns (mac) and trustdating-icon.ico (win) exist
+    icon: path.resolve(__dirname, "assets", "icons", "trustdating"),
     protocols: [
       {
         name: "Smart Dating Assistant",
@@ -54,7 +54,12 @@ module.exports = {
         authors: "Smart Dating Assistant Team",
         description: "Your privacy-focused dating conversation helper",
         // Windows installer icon
-        setupIcon: path.resolve(__dirname, "assets", "icons", "app.ico"),
+        setupIcon: path.resolve(
+          __dirname,
+          "assets",
+          "icons",
+          "trustdating-icon.ico"
+        ),
       },
     },
     {
@@ -65,9 +70,10 @@ module.exports = {
       name: "@electron-forge/maker-dmg",
       config: {
         name: "Smart Dating Assistant",
-        title: "Smart Dating Assistant Installer",
+        // Keep DMG title <=27 chars to satisfy appdmg
+        title: "Smart Dating Assistant",
         // DMG window icon (optional but nice)
-        icon: path.resolve(__dirname, "assets", "icons", "app.icns"),
+        icon: path.resolve(__dirname, "assets", "icons", "trustdating.icns"),
       },
     },
     {
@@ -85,13 +91,15 @@ module.exports = {
       config: {
         repository: {
           owner: "abhi-yo",
-          name: "trust-dating-releases"
+          name: "trust-dating",
         },
         draft: true,
         prerelease: false,
-        tagPrefix: "v"
-      }
-    }
+        tagPrefix: "v",
+        // Read token at runtime (CLI and CI). Ensure GH_TOKEN is set.
+        authToken: process.env.GH_TOKEN,
+      },
+    },
   ],
   plugins: [
     {

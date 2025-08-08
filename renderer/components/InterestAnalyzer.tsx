@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { InterestDetector, InterestAnalysisResult } from '../lib/interestDetector';
+import {
+  InterestDetector,
+  InterestAnalysisResult,
+} from "../lib/interestDetector";
+import {
+  ArrowLeft,
+  X as CloseIcon,
+  Timer,
+  FileText,
+  HelpCircle,
+  MessageSquare,
+  Zap,
+  BarChart,
+} from "lucide-react";
 
 interface InterestAnalyzerProps {
   onClose?: () => void;
   onBack?: () => void;
 }
 
-export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerProps) {
+export default function InterestAnalyzer({
+  onClose,
+  onBack,
+}: InterestAnalyzerProps) {
   const [conversationText, setConversationText] = useState("");
   const [analysis, setAnalysis] = useState<InterestAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -19,14 +35,16 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
       try {
         if (window.electronAPI?.getClipboard) {
           const clipText = await window.electronAPI.getClipboard();
-          if (clipText && clipText !== clipboardText && clipText.length > 50) {
-            if (clipText.includes('\n') || /:\s/.test(clipText) || clipText.length > 200) {
-              setClipboardText(clipText);
-            }
+          if (
+            clipText &&
+            clipText !== clipboardText &&
+            clipText.trim().length > 0
+          ) {
+            setClipboardText(clipText);
           }
         }
       } catch (error) {
-        console.log('Clipboard access not available');
+        console.log("Clipboard access not available");
       }
     };
 
@@ -44,7 +62,7 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
     if (!conversationText.trim()) return;
     setIsAnalyzing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const result = detector.analyzeInterest(conversationText);
       setAnalysis(result);
     } catch (error) {
@@ -74,99 +92,195 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
   };
 
   return (
-    <div style={{
-      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(8px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 1000, fontFamily: "system-ui, -apple-system, sans-serif"
-    }}>
-      <div style={{
-        backgroundColor: "rgba(0, 0, 0, 0.95)", borderRadius: "12px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
-        width: "90%", maxWidth: "600px", maxHeight: "85vh",
-        overflow: "hidden", display: "flex", flexDirection: "column"
-      }}>
-        
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backdropFilter: "blur(8px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.95)",
+          borderRadius: "12px",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+          width: "90%",
+          maxWidth: "600px",
+          maxHeight: "85vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Header */}
-        <div style={{
-          padding: "16px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-          display: "flex", alignItems: "center", justifyContent: "space-between"
-        }}>
+        <div
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             {onBack && (
-              <button onClick={onBack} style={{
-                background: "none", border: "none", color: "#9ca3af",
-                fontSize: "18px", cursor: "pointer", padding: "4px", borderRadius: "4px"
-              }}>←</button>
+              <button
+                onClick={onBack}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#9ca3af",
+                  cursor: "pointer",
+                  padding: "4px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                aria-label="Back"
+              >
+                <ArrowLeft size={18} />
+              </button>
             )}
             <div>
-              <h2 style={{ margin: 0, color: "white", fontSize: "18px", fontWeight: "500" }}>
+              <h2
+                style={{
+                  margin: 0,
+                  color: "white",
+                  fontSize: "18px",
+                  fontWeight: "500",
+                }}
+              >
                 Interest Analysis
               </h2>
-              <p style={{ margin: "2px 0 0 0", color: "#9ca3af", fontSize: "13px" }}>
+              <p
+                style={{
+                  margin: "2px 0 0 0",
+                  color: "#9ca3af",
+                  fontSize: "13px",
+                }}
+              >
                 Analyze conversation patterns and engagement
               </p>
             </div>
           </div>
           {onClose && (
-            <button onClick={onClose} style={{
-              background: "none", border: "none", color: "#9ca3af",
-              fontSize: "20px", cursor: "pointer", padding: "4px", borderRadius: "4px"
-            }}>×</button>
+            <button
+              onClick={onClose}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#9ca3af",
+                fontSize: "20px",
+                cursor: "pointer",
+                padding: "4px",
+                borderRadius: "4px",
+              }}
+              aria-label="Close"
+            >
+              <CloseIcon size={18} />
+            </button>
           )}
         </div>
 
         {/* Content */}
         <div style={{ padding: "20px", overflow: "auto", flex: 1 }}>
-          
           {/* Clipboard Detection */}
           {clipboardText && (
-            <div style={{
-              marginBottom: "16px", padding: "12px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "8px"
-            }}>
-              <p style={{ margin: "0 0 8px 0", color: "#d1d5db", fontSize: "13px" }}>
+            <div
+              style={{
+                marginBottom: "16px",
+                padding: "12px",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "8px",
+              }}
+            >
+              <p
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#d1d5db",
+                  fontSize: "13px",
+                }}
+              >
                 Conversation detected in clipboard
               </p>
-              <button onClick={handleUseClipboard} style={{
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                color: "#ffffff", padding: "6px 12px",
-                borderRadius: "6px", fontSize: "12px", cursor: "pointer"
-              }}>Use This Text</button>
+              <button
+                onClick={handleUseClipboard}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                Use This Text
+              </button>
             </div>
           )}
 
           {/* Input Section */}
           <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block", color: "#d1d5db", fontSize: "14px",
-              marginBottom: "8px", fontWeight: "500"
-            }}>Paste conversation:</label>
-            
+            <label
+              style={{
+                display: "block",
+                color: "#d1d5db",
+                fontSize: "14px",
+                marginBottom: "8px",
+                fontWeight: "500",
+              }}
+            >
+              Paste conversation:
+            </label>
+
             <div style={{ position: "relative" }}>
               <textarea
                 value={conversationText}
                 onChange={(e) => setConversationText(e.target.value)}
                 placeholder="Paste your conversation here..."
                 style={{
-                  width: "100%", height: "120px", padding: "12px",
+                  width: "100%",
+                  height: "120px",
+                  padding: "12px",
                   backgroundColor: "rgba(0, 0, 0, 0.8)",
                   border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: "8px", color: "white", fontSize: "13px",
-                  resize: "vertical", outline: "none", fontFamily: "inherit"
+                  borderRadius: "8px",
+                  color: "white",
+                  fontSize: "13px",
+                  resize: "vertical",
+                  outline: "none",
+                  fontFamily: "inherit",
                 }}
               />
-              <button onClick={handlePasteFromClipboard} style={{
-                position: "absolute", top: "8px", right: "8px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                color: "#ffffff", padding: "4px 8px",
-                borderRadius: "4px", fontSize: "11px", cursor: "pointer"
-              }}>Paste</button>
+              <button
+                onClick={handlePasteFromClipboard}
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  cursor: "pointer",
+                }}
+              >
+                Paste
+              </button>
             </div>
           </div>
 
@@ -176,12 +290,21 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
             disabled={!conversationText.trim() || isAnalyzing}
             style={{
               width: "100%",
-              backgroundColor: !conversationText.trim() || isAnalyzing 
-                ? "rgba(75, 85, 99, 0.5)" : "rgba(255, 255, 255, 0.1)",
-              border: "1px solid rgba(255, 255, 255, 0.2)", color: "white", padding: "12px",
-              borderRadius: "8px", fontSize: "14px", fontWeight: "500",
-              cursor: !conversationText.trim() || isAnalyzing ? "not-allowed" : "pointer",
-              marginBottom: "24px"
+              backgroundColor:
+                !conversationText.trim() || isAnalyzing
+                  ? "rgba(75, 85, 99, 0.5)"
+                  : "rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              color: "white",
+              padding: "12px",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              cursor:
+                !conversationText.trim() || isAnalyzing
+                  ? "not-allowed"
+                  : "pointer",
+              marginBottom: "24px",
             }}
           >
             {isAnalyzing ? "Analyzing..." : "Analyze Interest Level"}
@@ -189,19 +312,25 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
 
           {/* Results Section */}
           {analysis && (
-            <div style={{
-              background: "rgba(255, 255, 255, 0.03)",
-              borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.08)",
-              padding: "16px"
-            }}>
-              
+            <div
+              style={{
+                background: "rgba(255, 255, 255, 0.03)",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                padding: "16px",
+              }}
+            >
               {/* Overall Score */}
               <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <h3 style={{
-                  margin: "0 0 4px 0", color: getScoreColor(analysis.overallScore),
-                  fontSize: "20px", fontWeight: "500"
-                }}>
-                  {analysis.level.replace(/[🔥🤔❄️]/g, '').trim()}
+                <h3
+                  style={{
+                    margin: "0 0 4px 0",
+                    color: getScoreColor(analysis.overallScore),
+                    fontSize: "20px",
+                    fontWeight: "500",
+                  }}
+                >
+                  {analysis.level.replace(/[🔥🤔❄️]/g, "").trim()}
                 </h3>
                 <div style={{ color: "#9ca3af", fontSize: "13px" }}>
                   Score: {analysis.overallScore}/100
@@ -210,47 +339,102 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
 
               {/* Metrics */}
               <div style={{ marginBottom: "16px" }}>
-                <h4 style={{ margin: "0 0 12px 0", color: "#d1d5db", fontSize: "14px", fontWeight: "500" }}>
+                <h4
+                  style={{
+                    margin: "0 0 12px 0",
+                    color: "#d1d5db",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                  }}
+                >
                   Analysis Breakdown
                 </h4>
                 <div style={{ display: "grid", gap: "8px" }}>
                   {Object.entries(analysis.breakdown).map(([key, metric]) => (
-                    <div key={key} style={{
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                      padding: "8px 0", borderBottom: "1px solid rgba(255, 255, 255, 0.05)"
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ fontSize: "12px" }}>
-                          {key === 'responseTime' ? '⏱️' : 
-                           key === 'messageLength' ? '📝' : 
-                           key === 'engagement' ? '❓' : 
-                           key === 'sentiment' ? '💭' : 
-                           key === 'enthusiasm' ? '⚡' : '📊'}
+                    <div
+                      key={key}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 0",
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          {key === "responseTime" ? (
+                            <Timer size={12} />
+                          ) : key === "messageLength" ? (
+                            <FileText size={12} />
+                          ) : key === "engagement" ? (
+                            <HelpCircle size={12} />
+                          ) : key === "sentiment" ? (
+                            <MessageSquare size={12} />
+                          ) : key === "enthusiasm" ? (
+                            <Zap size={12} />
+                          ) : (
+                            <BarChart size={12} />
+                          )}
                         </span>
                         <span style={{ color: "#d1d5db", fontSize: "13px" }}>
-                          {key === 'responseTime' ? 'Response Time' :
-                           key === 'messageLength' ? 'Message Length' :
-                           key === 'engagement' ? 'Engagement' :
-                           key === 'sentiment' ? 'Sentiment' :
-                           key === 'enthusiasm' ? 'Enthusiasm' : key}
+                          {key === "responseTime"
+                            ? "Response Time"
+                            : key === "messageLength"
+                            ? "Message Length"
+                            : key === "engagement"
+                            ? "Engagement"
+                            : key === "sentiment"
+                            ? "Sentiment"
+                            : key === "enthusiasm"
+                            ? "Enthusiasm"
+                            : key}
                         </span>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{
-                          width: "60px", height: "4px",
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                          borderRadius: "2px", overflow: "hidden"
-                        }}>
-                          <div style={{
-                            width: `${getScoreBarWidth(metric.score)}%`,
-                            height: "100%", backgroundColor: getScoreColor(metric.score),
-                            borderRadius: "2px"
-                          }} />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "60px",
+                            height: "4px",
+                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                            borderRadius: "2px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${getScoreBarWidth(metric.score)}%`,
+                              height: "100%",
+                              backgroundColor: getScoreColor(metric.score),
+                              borderRadius: "2px",
+                            }}
+                          />
                         </div>
-                        <span style={{
-                          color: getScoreColor(metric.score), fontSize: "12px",
-                          fontWeight: "500", minWidth: "35px"
-                        }}>
+                        <span
+                          style={{
+                            color: getScoreColor(metric.score),
+                            fontSize: "12px",
+                            fontWeight: "500",
+                            minWidth: "35px",
+                          }}
+                        >
                           {metric.score}/100
                         </span>
                       </div>
@@ -262,16 +446,29 @@ export default function InterestAnalyzer({ onClose, onBack }: InterestAnalyzerPr
               {/* Key Insights */}
               {analysis.insights && analysis.insights.length > 0 && (
                 <div>
-                  <h4 style={{ margin: "0 0 8px 0", color: "#d1d5db", fontSize: "14px", fontWeight: "500" }}>
+                  <h4
+                    style={{
+                      margin: "0 0 8px 0",
+                      color: "#d1d5db",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
                     Key Insights
                   </h4>
                   <div style={{ display: "grid", gap: "6px" }}>
                     {analysis.insights.slice(0, 3).map((insight, index) => (
-                      <div key={index} style={{
-                        color: "#9ca3af", fontSize: "12px", padding: "6px 8px",
-                        backgroundColor: "rgba(255, 255, 255, 0.02)",
-                        borderRadius: "4px", border: "1px solid rgba(255, 255, 255, 0.05)"
-                      }}>
+                      <div
+                        key={index}
+                        style={{
+                          color: "#9ca3af",
+                          fontSize: "12px",
+                          padding: "6px 8px",
+                          backgroundColor: "rgba(255, 255, 255, 0.02)",
+                          borderRadius: "4px",
+                          border: "1px solid rgba(255, 255, 255, 0.05)",
+                        }}
+                      >
                         {insight}
                       </div>
                     ))}

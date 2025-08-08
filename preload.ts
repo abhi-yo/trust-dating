@@ -2,15 +2,20 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   // API Key Management
-  setApiKey: (provider: "gemini" | "openai" | "anthropic" | "openrouter" | "custom", apiKey: string, options?: { model?: string; endpoint?: string }) =>
-    ipcRenderer.invoke("set-api-key", provider, apiKey, options),
-  getApiKey: (provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom") =>
-    ipcRenderer.invoke("get-api-key", provider),
+  setApiKey: (
+    provider: "gemini" | "openai" | "anthropic" | "openrouter" | "custom",
+    apiKey: string,
+    options?: { model?: string; endpoint?: string }
+  ) => ipcRenderer.invoke("set-api-key", provider, apiKey, options),
+  getApiKey: (
+    provider?: "gemini" | "openai" | "anthropic" | "openrouter" | "custom"
+  ) => ipcRenderer.invoke("get-api-key", provider),
   hasValidApiKey: () => ipcRenderer.invoke("has-valid-api-key"),
   isFirstRun: () => ipcRenderer.invoke("is-first-run"),
   getCurrentProvider: () => ipcRenderer.invoke("get-current-provider"),
   getProviderConfig: () => ipcRenderer.invoke("get-provider-config"),
-  getAvailableModels: (provider: string) => ipcRenderer.invoke("get-available-models", provider),
+  getAvailableModels: (provider: string) =>
+    ipcRenderer.invoke("get-available-models", provider),
 
   // Smart Reply Generation
   generateSmartReplies: (data: {
@@ -50,7 +55,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Advanced dating intelligence
   getConversationInsights: (conversationId: string) =>
     ipcRenderer.invoke("get-conversation-insights", conversationId),
-  
+
   // Clipboard operations
   getClipboard: () => ipcRenderer.invoke("get-clipboard"),
   provideAdviceFeedback: (data: {
@@ -78,6 +83,23 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("write-file", filename, content),
   getCurrentApiKey: () => ipcRenderer.invoke("get-current-api-key"),
   getApiUsage: () => ipcRenderer.invoke("get-api-usage"),
+
+  // Health checks
+  checkNetworkOnline: () => ipcRenderer.invoke("check-network-online"),
+  checkProviderHealth: () => ipcRenderer.invoke("check-provider-health"),
+
+  // Privacy & Safety Center APIs
+  analyzeConversationSafety: (
+    messages: Array<{
+      text: string;
+      timestamp: number;
+      sender: "user" | "contact";
+    }>
+  ) => ipcRenderer.invoke("analyzeConversationSafety", messages),
+  quickSafetyCheck: (message: string) =>
+    ipcRenderer.invoke("quickSafetyCheck", message),
+  getSafetyEducation: () => ipcRenderer.invoke("getSafetyEducation"),
+  getSafetyStats: () => ipcRenderer.invoke("getSafetyStats"),
 
   // Event listeners for desktop features
   onUrlDetected: (callback: (url: string) => void) =>

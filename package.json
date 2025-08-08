@@ -14,7 +14,7 @@
     "build-ts": "tsc",
     "dev": "concurrently \"npm run next-dev\" \"electron-forge start\"",
     "next-dev": "next dev renderer",
-    "build-renderer": "cd renderer && NODE_ENV=production next build",
+    "build-renderer": "cd renderer && npx cross-env NODE_ENV=production next build",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "build": "npm run build-ts && npm run build-renderer",
@@ -60,6 +60,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "concurrently": "^8.0.0",
+    "cross-env": "^10.0.0",
     "electron": "^37.2.4",
     "electron-packager": "^17.1.2",
     "typescript": "^5.0.0"

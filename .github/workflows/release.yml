@@ -1,0 +1,69 @@
+name: Release (Forge → GitHub Releases)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Electron Forge publisher reads GH_TOKEN
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+jobs:
+  mac-arm64:
+    runs-on: macos-14  # Apple Silicon
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+      - name: Build
+        run: pnpm run build
+      - name: Publish (macOS arm64)
+        run: npx electron-forge publish --platform=darwin --arch=arm64
+
+  mac-x64:
+    runs-on: macos-13  # Intel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+      - name: Build
+        run: pnpm run build
+      - name: Publish (macOS x64)
+        run: npx electron-forge publish --platform=darwin --arch=x64
+
+  windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+      - name: Build
+        shell: bash
+        run: pnpm run build
+      - name: Publish (Windows x64)
+        shell: bash
+        run: npx electron-forge publish --platform=win32 --arch=x64
+

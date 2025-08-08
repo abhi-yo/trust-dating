@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html>
       <Head>
-        {/* Removed remote Google Fonts; rely on system fonts to keep runtime fully local */}
+        {/* Use locally bundled DM Sans in globals.css; no remote fonts */}
       </Head>
       <body style={{ 
         margin: 0, 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Rocket, Lightbulb, Lock } from "lucide-react";
 
 interface ApiSetupProps {
   onSetupComplete: () => void;
@@ -111,7 +112,10 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
             marginBottom: "8px",
           }}
         >
-          🚀 Welcome to Smart Dating Assistant
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <Rocket size={18} />
+            Welcome to Smart Dating Assistant
+          </span>
         </h1>
         <p
           style={{
@@ -161,10 +165,10 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
               }}
             >
               {provider === "gemini"
-                ? "🟢 Gemini (Recommended)"
+                ? "Gemini (Recommended)"
                 : provider === "openai"
-                ? "🔴 OpenAI"
-                : "🟣 Claude"}
+                ? "OpenAI"
+                : "Claude"}
             </button>
           ))}
         </div>
@@ -217,7 +221,9 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
             borderRadius: "6px",
           }}
         >
-          💡 {instructions.note}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <Lightbulb size={14} /> {instructions.note}
+          </span>
         </div>
       </div>
 
@@ -285,7 +291,7 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
             opacity: saving || !apiKey.trim() ? 0.6 : 1,
           }}
         >
-          {saving ? "Saving..." : "🚀 Start Using Smart Dating Assistant"}
+          {saving ? "Saving..." : "Start Using Smart Dating Assistant"}
         </button>
       </div>
 
@@ -301,8 +307,11 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
           lineHeight: "1.4",
           opacity: 0.8,
         }}
-      >
-        🔒 <strong>Privacy:</strong> Your API key is stored locally on your
+        >
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <Lock size={14} /> <strong>Privacy:</strong>
+        </span>
+        {" "}Your API key is stored locally on your
         device and never sent to our servers. All AI requests go directly from
         your computer to your chosen provider.
       </div>

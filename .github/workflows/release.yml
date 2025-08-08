@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: '' # Disable cache - we use pnpm
       - name: Install pnpm
         run: npm i -g pnpm@9
       - name: pnpm version

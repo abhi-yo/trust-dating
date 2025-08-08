@@ -180,7 +180,7 @@ const DatingDashboard: React.FC = () => {
             disabled={loading}
             className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 px-6 py-3 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50"
           >
-            {loading ? '🔄 Analyzing...' : '🧪 Test AI Analysis'}
+      {loading ? 'Analyzing...' : 'Run AI Analysis'}
           </button>
           <p className="text-sm text-gray-400 mt-2">Click to analyze a sample conversation with our advanced AI systems</p>
         </div>
@@ -315,7 +315,7 @@ const DatingDashboard: React.FC = () => {
                     <div className="flex-1">
                       <div className="text-sm font-medium">{insight.message}</div>
                       <div className="text-xs text-gray-400 mt-1">
-                        Confidence: {(insight.confidence * 100).toFixed(0)}% • {formatTimestamp(insight.timestamp)}
+            Confidence: {(insight.confidence * 100).toFixed(0)}% - {formatTimestamp(insight.timestamp)}
                       </div>
                     </div>
                   </div>
@@ -334,7 +334,7 @@ const DatingDashboard: React.FC = () => {
         {/* Conversations List */}
         {conversations.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-xl font-bold mb-4">💬 Your Conversations</h2>
+        <h2 className="text-xl font-bold mb-4">Your Conversations</h2>
             <div className="bg-gray-900/60 backdrop-blur-md border border-gray-700 rounded-xl p-6">
               <div className="space-y-3">
                 {conversations.map((conv) => (
@@ -342,7 +342,7 @@ const DatingDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="font-semibold">{conv.contact}</div>
-                        <div className="text-sm text-gray-400">{conv.platform} • {conv.message_count} messages</div>
+            <div className="text-sm text-gray-400">{conv.platform} - {conv.message_count} messages</div>
                         <div className="text-xs text-gray-500 mt-1">Stage: {conv.relationship_stage}</div>
                       </div>
                       <div className="text-right">

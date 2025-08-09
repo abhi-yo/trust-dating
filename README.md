@@ -1,50 +1,46 @@
-# Trust Dating Assistant
+# Smart Dating Assistant
 
-An open-source desktop application that provides AI-assisted smart replies, conversation analysis, and safety checks for online conversations. The app runs locally; you bring your own AI API key (Gemini, OpenAI, Anthropic, OpenRouter).
+An open-source desktop application that provides AI-powered conversation assistance for online dating. The app runs entirely locally on your machine - you just need to provide your own AI API key.
 
 ## Features
 
 ### Smart Reply Generation
 
-- AI-powered response suggestions with multiple tone options (casual, fun, romantic, witty)
-- Context-aware replies that match conversation flow
-- Unlimited API access with intelligent caching
-- Real-time clipboard monitoring for instant suggestions
+- AI-powered response suggestions for dating conversations
+- Automatic clipboard detection when you copy messages
+- Manual analysis with Cmd+Shift+C shortcut
+- Recent conversation history (last 3 analyzed)
+- One-click copy responses with visual feedback
 
-### Conversation Analysis
+### Conversation Analysis Tools
 
-- **Interest Analysis**: Extract and analyze shared interests from conversations
-- **Conversation Quality**: Assess engagement levels, emotional depth, and reciprocity
-- **Catfish Detection**: Advanced AI analysis to identify potential fake profiles
-- Comprehensive conversation metrics and insights
+- **Interest Analyzer**: Extract shared interests and hobbies from conversations
+- **Conversation Quality**: Analyze engagement levels, tone, and conversation health
+- **Catfish Detection**: AI-powered analysis to identify potential fake profiles and suspicious behavior
 
-### Trust & Safety
+### AI Provider Support
 
-- **Trust Verification**: Analyze dating profiles and websites for authenticity
-- Real-time safety alerts and red flag detection
-- Profile verification with image analysis capabilities
-- Safety recommendations and best practices
+- **Google Gemini** (recommended)
+- **OpenAI** (GPT-3.5/GPT-4)
+- **Anthropic** (Claude)
+- **OpenRouter** (multiple models)
+- **Custom API endpoints**
 
-### Smart Features
+### Desktop Integration
 
-- **Activity Suggestions**: Personalized date ideas based on shared interests
-- **Desktop Integration**: Screenshot capture, file monitoring, system tray
-- **Multi-Provider AI**: Support for Gemini, OpenAI, Anthropic, OpenRouter, and custom endpoints
-- **Overlay Mode**: Always-on-top floating window with customizable opacity
-
-### Advanced Capabilities
-
-- Intelligent conversation learning and pattern recognition
-- Personalized advice based on dating goals and preferences
-- Advanced conversation metrics and success tracking
-- Cross-platform desktop notifications
+- Real-time clipboard monitoring
+- System tray integration with quick access
+- Global keyboard shortcuts (Cmd/Ctrl + Shift + O to toggle overlay)
+- Adjustable window opacity
+- Auto-launch with system startup
+- Native desktop notifications
 
 ## Prerequisites
 
 - **Node.js** (v18 or higher)
-- **PNPM** (install globally: `npm install -g pnpm`)
-- **AI API Key** (Gemini, OpenAI, Anthropic, or OpenRouter)
-- **macOS or Windows** (optimized for macOS with full desktop integration)
+- **npm** (comes with Node.js)
+- **AI API Key** from one of the supported providers
+- **macOS or Windows** (cross-platform desktop app)
 
 ## Quick Start
 
@@ -58,19 +54,19 @@ An open-source desktop application that provides AI-assisted smart replies, conv
 2. **Install dependencies**
 
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. **Start the application**
 
    ```bash
-   pnpm start
+   npm start
    ```
 
 4. **Setup your AI provider**
    - On first run, you'll be prompted to configure your AI API key
-   - Choose from Gemini, OpenAI, Anthropic, OpenRouter, or custom endpoint
-   - The app will guide you through the setup process
+   - Choose from supported providers (Gemini, OpenAI, Anthropic, OpenRouter, or custom)
+   - Enter your API key and start using the app
 
 ## Development
 
@@ -78,30 +74,30 @@ An open-source desktop application that provides AI-assisted smart replies, conv
 
 ```bash
 # Start development server with hot reload
-pnpm dev
+npm run dev
 ```
 
 ### Building the Application
 
 ```bash
 # Build TypeScript and renderer
-pnpm build
+npm run build
 
 # Build for current platform
-pnpm make
+npm run make
 
-# Development build with watch
-pnpm build-ts      # Build TypeScript only
-pnpm build-renderer # Build Next.js renderer only
+# Platform-specific builds
+npm run make:mac-arm64  # macOS Apple Silicon
+npm run make:mac-x64    # macOS Intel
+npm run make:win-x64    # Windows 64-bit
 ```
 
 ### Available Scripts
 
-- `pnpm start` - Start the production app
-- `pnpm dev` - Development mode with hot reload
-- `pnpm build` - Build all components
-- `pnpm make` - Create distributable packages
-- `pnpm test` - Run tests (if available)
+- `npm start` - Start the production app
+- `npm run dev` - Development mode with hot reload
+- `npm run build` - Build all components
+- `npm run make` - Create distributable packages for current platform
 
 ## Usage
 
@@ -116,37 +112,25 @@ pnpm build-renderer # Build Next.js renderer only
 
 1. Copy any dating message to your clipboard
 2. The app automatically detects conversation content
-3. Press `Cmd+Shift+C` or wait for auto-detection
-4. Get AI-powered reply suggestions with explanations
-5. Choose your preferred tone (casual, fun, romantic, witty)
+3. Get AI-powered reply suggestions instantly
+4. Click to copy the response you want to use
+5. View recent conversation history (last 3 analyzed)
 
 #### Conversation Analysis
 
-- **Interest Analyzer**: Paste conversations to extract shared interests
-- **Quality Assessment**: Get detailed conversation health metrics
-- **Catfish Detection**: Upload profile images or analyze profiles for authenticity
-
-#### Trust Verification
-
-- Enter dating profile URLs for comprehensive trust analysis
-- Get verification scores and red flag warnings
-- Receive safety recommendations and best practices
-
-#### Activity Suggestions
-
-- Based on analyzed interests, get personalized date ideas
-- AI-generated activity recommendations
-- Tailored suggestions for your location and preferences
+- **Interest Analyzer**: Extract shared interests and conversation topics
+- **Conversation Quality**: Get detailed conversation health and engagement metrics
+- **Catfish Detection**: Analyze profiles and conversations for suspicious patterns
 
 ### Navigation
 
-Access features from the header menu:
+The app has a clean, minimal interface with these main sections:
 
-- **Smart Reply** - Main AI reply generation
-- **Interest Analysis** - Extract interests from conversations
-- **Catfish Detection** - Profile and image verification
-- **Conversation Quality** - Detailed conversation metrics
-- **Settings** - AI provider configuration and app preferences
+- **Smart Reply** - Main AI reply generation feature
+- **Interest Analyzer** - Extract interests from conversations
+- **Catfish Detection** - Analyze suspicious profiles and conversations
+- **Conversation Quality** - Detailed conversation health metrics
+- **Settings** - Configure AI provider, API keys, and app preferences
 
 ## Architecture
 
@@ -157,93 +141,94 @@ trust-dating/
 ├── main.ts                 # Electron main process
 ├── preload.ts             # Secure IPC bridge
 ├── src/
-│   ├── ai/                # Universal AI client
-│   ├── analysis/          # Conversation analyzers
+│   ├── ai/                # Universal AI client (multi-provider support)
+│   ├── analysis/          # Conversation analysis engines
 │   ├── config/            # API key management
-│   ├── database/          # Data persistence
-│   └── safety/            # Trust & safety engine
+│   ├── safety/            # Safety and verification tools
+│   └── utils/             # Utility functions
+├── backend/               # Backend services
+│   └── src/
+│       ├── services/      # AI and analysis services
+│       └── utils/         # Logger, validation, rate limiting
 └── renderer/              # Next.js frontend
-    ├── components/        # React components
-    ├── pages/            # Next.js pages
+    ├── components/        # React UI components
+    ├── pages/            # Application pages
     └── types/            # TypeScript definitions
 ```
 
 ### Key Components
 
-- **Main Process** (`main.ts`) - Core Electron application logic
+- **Main Process** (`main.ts`) - Core Electron application logic and desktop integration
 - **Preload Script** (`preload.ts`) - Secure communication bridge between main and renderer
-- **Universal AI** (`src/ai/`) - Multi-provider AI client supporting various APIs
-- **Analysis Engine** (`src/analysis/`) - Conversation and dating intelligence
-- **Safety Engine** (`src/safety/`) - Trust verification and safety analysis
-- **React UI** (`renderer/`) - Modern web-based user interface
+- **Universal AI** (`src/ai/`) - Multi-provider AI client (Gemini, OpenAI, Anthropic, etc.)
+- **Analysis Engine** (`src/analysis/`) - Conversation analysis and intelligence features
+- **Safety Engine** (`src/safety/`) - Profile verification and safety analysis
+- **React UI** (`renderer/`) - Modern Next.js-based user interface
 
-### Data Flow
+### How It Works
 
-1. **Input Detection** - Clipboard monitoring or manual input
-2. **AI Processing** - Universal AI client handles API requests
-3. **Analysis** - Multiple analysis engines process the data
-4. **UI Updates** - React components display results
-5. **Caching** - Intelligent response caching for performance
+1. **Input Detection** - Monitors clipboard for dating messages or manual text input
+2. **AI Processing** - Routes requests to your configured AI provider
+3. **Analysis** - Processes conversations through various analysis engines
+4. **Results Display** - Shows suggestions and insights in the React UI
+5. **Local Storage** - Keeps recent history locally (last 3 conversations)
 
 ## Technology
 
 ### Core Framework
 
 - **Electron 25+** - Cross-platform desktop application framework
-- **Next.js 14** - React framework with SSG and TypeScript support
-- **React 18** - Modern UI library with hooks and concurrent features
-- **TypeScript 5** - Type-safe development
+- **Next.js 14** - React framework with static export for file:// compatibility
+- **React 18** - Modern UI with hooks and Lucide React icons
+- **TypeScript 5** - Type-safe development throughout
 
-### AI & Analysis
+### AI Integration
 
-- **Universal AI Client** - Multi-provider AI integration
-- **Gemini AI** - Google's advanced language model
-- **OpenAI GPT** - ChatGPT and GPT-4 support
+- **Universal AI Client** - Single interface for multiple AI providers
+- **Google Gemini** - Fast and cost-effective (recommended)
+- **OpenAI** - GPT-3.5 and GPT-4 support
 - **Anthropic Claude** - Advanced reasoning capabilities
-- **OpenRouter** - Access to multiple AI models
+- **OpenRouter** - Access to multiple models through one API
+- **Custom Endpoints** - Self-hosted or other compatible APIs
 
-### Desktop Integration
+### Desktop Features
 
-- **Clipboard Monitoring** - Real-time message detection
+- **Clipboard Monitoring** - Automatic conversation detection
 - **Global Shortcuts** - System-wide keyboard shortcuts
-- **Notifications** - Native desktop notifications
-- **File System** - Image analysis and file operations
-- **System Tray** - Background operation support
+- **System Tray** - Background operation with quick access
+- **Auto-launch** - Start with operating system
+- **Window Opacity** - Adjustable transparency
+- **Native Notifications** - Desktop alerts and feedback
 
-### Development Tools
+### Development & Build
 
-- **PNPM** - Fast, disk-efficient package manager
-- **Electron Forge** - Build and packaging toolkit
-- **ESLint & Prettier** - Code quality and formatting
-- **Hot Reload** - Development productivity features
+- **npm** - Standard Node.js package manager
+- **Electron Forge** - Build, package, and publish toolkit
+- **Cross-platform** - macOS (Intel/Apple Silicon) and Windows support
+- **GitHub Releases** - Automated CI/CD publishing
 
 ## Configuration
 
-### Supported AI Providers
+### AI Provider Setup
 
-- **Google Gemini** (Recommended) - Best performance and accuracy
-- **OpenAI** - GPT-3.5/GPT-4 support
-- **Anthropic** - Claude models
-- **OpenRouter** - Access to multiple providers
-- **Custom Endpoints** - Self-hosted or other API-compatible services
+The app supports multiple AI providers. You'll configure this during first run:
 
-### Environment Variables (Optional)
+1. **Google Gemini** (Recommended) - Best balance of cost and performance
+2. **OpenAI** - Access to GPT-3.5 and GPT-4 models
+3. **Anthropic** - Claude models for advanced reasoning
+4. **OpenRouter** - Multiple models through a single API
+5. **Custom Endpoints** - Self-hosted or other compatible APIs
 
-```bash
-# For development/testing
-GEMINI_API_KEY=your_gemini_key
-OPENAI_API_KEY=your_openai_key
-```
+### App Configuration
 
-### App Settings
+All settings are managed through the Settings panel in the app:
 
-All settings are managed through the in-app Settings panel:
-
-- AI provider selection and configuration
-- Model selection (when supported)
-- Custom endpoint configuration
-- Opacity and display preferences
-- Auto-launch settings
+- **AI Provider** - Choose and configure your preferred provider
+- **API Key** - Securely stored locally on your machine
+- **Model Selection** - Choose specific models when supported
+- **Window Opacity** - Adjust transparency (20-100%)
+- **Auto-launch** - Start app when system boots
+- **Keyboard Shortcuts** - Global hotkeys for quick access
 
 ## Contributing
 
@@ -259,35 +244,63 @@ This project is licensed under the GNU General Public License v3.0 (GPL-3.0). Se
 
 ## Build and Release
 
-### Local build
+### Local Build
 
-1. Install dependencies: `pnpm install`
-2. Build: `pnpm run build`
-3. Make installers:
-   - macOS (Apple Silicon): `pnpm run make:mac-arm64`
-   - macOS (Intel): `pnpm run make:mac-x64`
-   - Windows x64: `pnpm run make:win-x64`
+1. Install dependencies: `npm install`
+2. Build the app: `npm run build`
+3. Create installers:
+   - macOS (Apple Silicon): `npm run make:mac-arm64`
+   - macOS (Intel): `npm run make:mac-x64`
+   - Windows x64: `npm run make:win-x64`
 
-Artifacts are written to `out/`. The renderer is static-exported to `renderer-dist` and loaded via file URLs. Icons live in `assets/icons/`.
+Output files are created in the `out/` directory.
 
-### Publish to GitHub Releases
+### GitHub Releases
 
-We use Electron Forge’s GitHub publisher. Provide an environment variable `GH_TOKEN` (fine‑grained PAT with Contents: read/write; Metadata: read). Locally:
+Automated releases are available via GitHub Actions:
 
+1. Create a GitHub Personal Access Token with repository write permissions
+2. Add it as `GH_TOKEN` in repository secrets
+3. Push a git tag (e.g., `v1.0.0`) to trigger builds for all platforms
+4. The workflow creates a draft release with installers for macOS and Windows
+
+Manual publishing (from your local machine):
 ```bash
-export GH_TOKEN=YOUR_TOKEN
-pnpm run publish  # builds then publishes for the current platform
+export GH_TOKEN=your_github_token
+npm run publish
 ```
 
-CI publishing is available via `.github/workflows/release.yml`. Push a tag like `v1.0.0` to trigger macOS arm64/x64 and Windows x64 builds and a draft release.
+## Privacy & Security
 
-## Privacy and Local-Only Behavior
+This app is designed with privacy as a core principle:
 
-- Renderer assets use relative paths and load from disk.
-- No telemetry or analytics. Network calls only occur when you use an AI provider.
-- Connectivity check does not ping third-party hosts.
-- DM Sans is bundled locally; no remote fonts are fetched.
+- **Fully Local Operation** - All data processing happens on your machine
+- **No Telemetry** - No analytics, tracking, or data collection
+- **API Keys Stored Locally** - Your AI provider keys are encrypted and stored only on your device
+- **No Remote Assets** - All fonts and resources are bundled with the app
+- **Minimal Network Usage** - Only connects to your chosen AI provider when actively using features
+- **Recent History** - Conversation history is kept locally (last 3 items only)
+- **No Cloud Sync** - Your data never leaves your machine
+
+## Download & Install
+
+### Pre-built Applications
+
+Download the latest version for your platform:
+
+- **macOS**: [Download DMG](https://github.com/abhi-yo/trust-dating/releases/latest)
+- **Windows**: [Download Installer](https://github.com/abhi-yo/trust-dating/releases/latest)
+
+### macOS Installation Note
+
+macOS may show a security warning for unsigned apps. To install:
+
+1. Right-click the app and select "Open"
+2. Click "Open" in the security dialog
+3. Alternatively, use Terminal: `xattr -d com.apple.quarantine "/Applications/Smart Dating Assistant.app"`
+
+After the first successful launch, the app will run normally.
 
 ---
 
-Maintainers welcome community contributions. Please open issues and pull requests in the repository.
+**Contributions Welcome** - Open source project accepting issues and pull requests.

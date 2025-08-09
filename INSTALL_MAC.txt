@@ -1,0 +1,17 @@
+📱 Smart Dating Assistant - macOS Installation
+
+🚀 QUICK INSTALL:
+1. Drag "Smart Dating Assistant" to Applications folder
+2. Right-click the app → "Open" (don't double-click!)
+3. Click "Open" in the security dialog
+4. Enjoy!
+
+⚠️ If you see "damaged and can't be opened":
+This is normal macOS security. Use the right-click method above.
+
+💡 Alternative: Open Terminal and run:
+xattr -d com.apple.quarantine "/Applications/Smart Dating Assistant.app"
+
+✅ After first open, the app will work normally forever!
+
+Need help? Visit: https://github.com/abhi-yo/trust-dating

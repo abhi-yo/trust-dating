@@ -14,6 +14,9 @@ module.exports = {
     appCategoryType: "public.app-category.social-networking",
     // Base icon (no extension). Ensure trustdating.icns (mac) and trustdating-icon.ico (win) exist
     icon: path.resolve(__dirname, "assets", "icons", "trustdating"),
+    // macOS specific options to reduce security issues
+    osxSign: false, // Disable signing for now
+    osxNotarize: false, // Disable notarization
     protocols: [
       {
         name: "Smart Dating Assistant",
@@ -74,6 +77,15 @@ module.exports = {
         title: "Smart Dating Assistant",
         // DMG window icon (optional but nice)
         icon: path.resolve(__dirname, "assets", "icons", "trustdating.icns"),
+        // Include installation instructions
+        additionalDMGOptions: {
+          files: [
+            {
+              source: path.resolve(__dirname, "INSTALL_MAC.txt"),
+              target: "📖 Installation Instructions.txt",
+            },
+          ],
+        },
       },
     },
     {

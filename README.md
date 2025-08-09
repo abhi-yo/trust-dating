@@ -265,6 +265,7 @@ Automated releases are available via GitHub Actions:
 4. The workflow creates a draft release with installers for macOS and Windows
 
 Manual publishing (from your local machine):
+
 ```bash
 export GH_TOKEN=your_github_token
 npm run publish

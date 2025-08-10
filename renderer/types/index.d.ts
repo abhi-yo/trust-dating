@@ -269,9 +269,7 @@ interface ElectronAPI {
     combinedRisk: number;
     finalRecommendations: string[];
   }>;
-  quickSafetyCheck: (
-    message: string
-  ) => Promise<{
+  quickSafetyCheck: (message: string) => Promise<{
     hasRisk: boolean;
     riskLevel: "low" | "medium" | "high" | "critical";
     alerts: string[];

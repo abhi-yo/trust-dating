@@ -441,7 +441,8 @@ async function createWindow() {
       const interfaces = os.networkInterfaces();
       const hasExternalInterface = Object.values(interfaces).some((list) =>
         (list || []).some(
-          (iface: any) => !iface.internal && !!iface.address && iface.family === "IPv4"
+          (iface: any) =>
+            !iface.internal && !!iface.address && iface.family === "IPv4"
         )
       );
       return { online: hasExternalInterface };
@@ -714,7 +715,7 @@ Format as JSON:
     }
   );
 
-  // Enhanced conversation analysis with full backend intelligence
+  // Enhanced conversation analysis with AI intelligence
   ipcMain.handle(
     "process-chat",
     async (

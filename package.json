@@ -21,6 +21,7 @@
     "dist": "npm run build && electron-forge make",
     "make:mac-arm64": "npm run build && electron-forge make --platform=darwin --arch=arm64",
     "make:mac-x64": "npm run build && electron-forge make --platform=darwin --arch=x64",
+    "make:dev": "npm run build && electron-forge make --config=forge.dev.config.js",
     "make:win-x64": "npm run build && electron-forge make --platform=win32 --arch=x64",
     "publish": "npm run build && electron-forge publish"
   },

@@ -7,8 +7,23 @@
   "files": [
     "build/**/*",
     "renderer-dist/**/*",
-    "node_modules/**/*",
-    "package.json"
+    "assets/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf",
+    "assets/fonts/DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf",
+    "assets/icons/**/*",
+    "package.json",
+    "!node_modules/**/*",
+    "node_modules/@google/generative-ai/**/*",
+    "node_modules/sqlite3/**/*",
+    "node_modules/screenshot-desktop/**/*",
+    "node_modules/node-notifier/**/*",
+    "node_modules/electron-squirrel-startup/**/*",
+    "node_modules/electron-store/**/*",
+    "node_modules/auto-launch/**/*",
+    "node_modules/axios/**/*",
+    "node_modules/chokidar/**/*",
+    "node_modules/clipboardy/**/*",
+    "node_modules/natural/**/*",
+    "node_modules/sentiment/**/*"
   ],
   "mac": {
     "target": "dmg",

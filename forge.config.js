@@ -123,8 +123,7 @@ module.exports = {
         draft: false,
         prerelease: false,
         tagPrefix: "v",
-        // Read token at runtime (CLI and CI). Ensure GH_TOKEN is set.
-        authToken: process.env.GH_TOKEN,
+        authToken: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
       },
     },
   ],

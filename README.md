@@ -146,10 +146,6 @@ trust-dating/
 │   ├── config/            # API key management
 │   ├── safety/            # Safety and verification tools
 │   └── utils/             # Utility functions
-├── backend/               # Backend services
-│   └── src/
-│       ├── services/      # AI and analysis services
-│       └── utils/         # Logger, validation, rate limiting
 └── renderer/              # Next.js frontend
     ├── components/        # React UI components
     ├── pages/            # Application pages

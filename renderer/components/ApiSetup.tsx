@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Rocket, Lightbulb, Lock } from "lucide-react";
+import { Rocket, Lightbulb, Lock, Eye, EyeOff } from "lucide-react";
 
 interface ApiSetupProps {
   onSetupComplete: () => void;
@@ -12,11 +12,12 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
   const [apiKey, setApiKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showKey, setShowKey] = useState(false);
 
   const handleSave = async () => {
     console.log("handleSave called");
     console.log("electronAPI available:", !!window.electronAPI);
-    
+
     if (!apiKey.trim()) {
       setError("Please enter an API key");
       return;
@@ -31,7 +32,11 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
     setError("");
 
     try {
-      console.log("Calling setApiKey with:", selectedProvider, apiKey.substring(0, 10) + "...");
+      console.log(
+        "Calling setApiKey with:",
+        selectedProvider,
+        apiKey.substring(0, 10) + "..."
+      );
       await window.electronAPI.setApiKey(selectedProvider, apiKey);
       console.log("setApiKey successful, calling onSetupComplete");
       onSetupComplete();
@@ -92,228 +97,295 @@ export default function ApiSetup({ onSetupComplete }: ApiSetupProps) {
   return (
     <div
       style={{
-        padding: "32px",
-        maxWidth: "600px",
-        margin: "0 auto",
-        color: "white",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "32px 20px",
+        background:
+          "radial-gradient(1000px 600px at -10% -10%, rgba(37,99,235,0.25) 0%, rgba(2,6,23,0) 60%), radial-gradient(800px 500px at 110% 10%, rgba(16,185,129,0.18) 0%, rgba(2,6,23,0) 60%), #0a0f1f",
+        color: "#ffffff",
+        fontFamily:
+          '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       }}
     >
       <div
         style={{
-          textAlign: "center",
-          marginBottom: "32px",
+          width: "100%",
+          maxWidth: 720,
+          background: "rgba(10, 15, 31, 0.85)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 16,
+          boxShadow:
+            "0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          padding: 28,
         }}
       >
-        <h1
+        <div
           style={{
-            fontSize: "24px",
-            fontWeight: "600",
-            marginBottom: "8px",
+            textAlign: "center",
+            marginBottom: 24,
           }}
         >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <Rocket size={18} />
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "8px 12px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              fontSize: 12,
+              color: "#c7d2fe",
+              marginBottom: 12,
+            }}
+          >
+            <Rocket size={14} />
+            First-time setup
+          </div>
+          <h1
+            style={{
+              fontSize: 28,
+              lineHeight: 1.2,
+              fontWeight: 700,
+              margin: 0,
+              letterSpacing: -0.2,
+            }}
+          >
             Welcome to Smart Dating Assistant
-          </span>
-        </h1>
-        <p
-          style={{
-            fontSize: "16px",
-            opacity: 0.8,
-            lineHeight: "1.5",
-          }}
-        >
-          To get started, you'll need an AI API key. Don't worry, it's free and
-          takes 2 minutes!
-        </p>
-      </div>
-
-      {/* Provider Selection */}
-      <div style={{ marginBottom: "24px" }}>
-        <h3
-          style={{
-            fontSize: "16px",
-            fontWeight: "500",
-            marginBottom: "12px",
-          }}
-        >
-          Choose your AI provider:
-        </h3>
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          {(["gemini", "openai", "anthropic"] as const).map((provider) => (
-            <button
-              key={provider}
-              onClick={() => setSelectedProvider(provider)}
-              style={{
-                background:
-                  selectedProvider === provider
-                    ? "rgba(59, 130, 246, 0.5)"
-                    : "rgba(255, 255, 255, 0.1)",
-                border: `1px solid ${
-                  selectedProvider === provider
-                    ? "#3b82f6"
-                    : "rgba(255, 255, 255, 0.2)"
-                }`,
-                color: "white",
-                padding: "12px 16px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "14px",
-                textTransform: "capitalize",
-                fontWeight: selectedProvider === provider ? "500" : "400",
-              }}
-            >
-              {provider === "gemini"
-                ? "Gemini (Recommended)"
-                : provider === "openai"
-                ? "OpenAI"
-                : "Claude"}
-            </button>
-          ))}
+          </h1>
+          <p
+            style={{
+              fontSize: 15,
+              opacity: 0.8,
+              lineHeight: 1.6,
+              marginTop: 8,
+            }}
+          >
+            Enter an AI API key to unlock smart replies and safety tools.
+          </p>
         </div>
-      </div>
 
-      {/* Instructions */}
-      <div
-        style={{
-          background: "rgba(255, 255, 255, 0.05)",
-          borderRadius: "12px",
-          padding: "20px",
-          marginBottom: "24px",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-        }}
-      >
-        <h4
-          style={{
-            fontSize: "14px",
-            fontWeight: "500",
-            marginBottom: "12px",
-            color: "#60a5fa",
-          }}
-        >
-          {instructions.title}
-        </h4>
-
-        <div style={{ marginBottom: "16px" }}>
-          {instructions.steps.map((step, index) => (
-            <div
-              key={index}
+        <div style={{ marginBottom: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 10,
+            }}
+          >
+            <h3
               style={{
-                fontSize: "13px",
-                lineHeight: "1.4",
-                marginBottom: "4px",
-                opacity: 0.9,
+                fontSize: 14,
+                fontWeight: 600,
+                margin: 0,
               }}
             >
-              {step}
+              Choose your AI provider
+            </h3>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              Switch anytime in Settings
             </div>
-          ))}
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {(["gemini", "openai", "anthropic"] as const).map((provider) => (
+              <button
+                key={provider}
+                onClick={() => setSelectedProvider(provider)}
+                style={{
+                  background:
+                    selectedProvider === provider
+                      ? "rgba(59,130,246,0.2)"
+                      : "rgba(255,255,255,0.06)",
+                  border: `1px solid ${
+                    selectedProvider === provider
+                      ? "#3b82f6"
+                      : "rgba(255,255,255,0.1)"
+                  }`,
+                  color: "#ffffff",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  textTransform: "capitalize",
+                  fontWeight: selectedProvider === provider ? 600 : 500,
+                  boxShadow:
+                    selectedProvider === provider
+                      ? "0 0 0 4px rgba(59,130,246,0.12)"
+                      : "none",
+                }}
+              >
+                {provider === "gemini"
+                  ? "Gemini"
+                  : provider === "openai"
+                  ? "OpenAI"
+                  : "Claude"}
+                {selectedProvider === provider && (
+                  <span style={{ marginLeft: 8, opacity: 0.8 }}>
+                    (Selected)
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div
           style={{
-            fontSize: "12px",
-            opacity: 0.7,
-            fontStyle: "italic",
-            padding: "8px",
-            background: "rgba(255, 255, 255, 0.05)",
-            borderRadius: "6px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 18,
           }}
         >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <Lightbulb size={14} /> {instructions.note}
-          </span>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#93c5fd",
+              marginBottom: 10,
+            }}
+          >
+            {instructions.title}
+          </div>
+          <div style={{ display: "grid", gap: 6 }}>
+            {instructions.steps.map((step, index) => (
+              <div
+                key={index}
+                style={{ fontSize: 13, lineHeight: 1.45, opacity: 0.9 }}
+              >
+                {step}
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              marginTop: 12,
+              fontSize: 12,
+              opacity: 0.8,
+              padding: 10,
+              borderRadius: 8,
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            <span
+              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+            >
+              <Lightbulb size={14} /> {instructions.note}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* API Key Input */}
-      <div style={{ marginBottom: "24px" }}>
-        <label
-          style={{
-            display: "block",
-            fontSize: "14px",
-            fontWeight: "500",
-            marginBottom: "8px",
-          }}
-        >
-          Enter your {instructions.title} key:
-        </label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder={instructions.placeholder}
-          style={{
-            width: "100%",
-            padding: "12px",
-            borderRadius: "8px",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            background: "rgba(255, 255, 255, 0.1)",
-            color: "white",
-            fontSize: "14px",
-            fontFamily: "monospace",
-          }}
-        />
-      </div>
+        <div style={{ marginBottom: 16 }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: 13,
+              fontWeight: 600,
+              marginBottom: 8,
+            }}
+          >
+            Enter your {instructions.title} key
+          </label>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input
+              type={showKey ? "text" : "password"}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSave();
+              }}
+              placeholder={instructions.placeholder}
+              style={{
+                flex: 1,
+                padding: "12px 14px",
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.08)",
+                color: "#ffffff",
+                fontSize: 14,
+                fontFamily: "monospace",
+              }}
+            />
+            <button
+              onClick={() => setShowKey((s) => !s)}
+              aria-label="Toggle key visibility"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                color: "#ffffff",
+                padding: "10px 12px",
+                borderRadius: 10,
+                cursor: "pointer",
+              }}
+            >
+              {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
 
-      {error && (
+        {error && (
+          <div
+            style={{
+              background: "rgba(239,68,68,0.12)",
+              border: "1px solid rgba(239,68,68,0.5)",
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 14,
+              fontSize: 13,
+              color: "#fecaca",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={handleSave}
+            disabled={saving || !apiKey.trim()}
+            style={{
+              flex: 1,
+              background: saving ? "rgba(107,114,128,0.5)" : "#2563eb",
+              border: "1px solid rgba(37,99,235,0.9)",
+              color: "#ffffff",
+              padding: "14px 16px",
+              borderRadius: 12,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: saving ? "not-allowed" : "pointer",
+              opacity: saving || !apiKey.trim() ? 0.7 : 1,
+              boxShadow: "0 10px 30px rgba(37,99,235,0.25)",
+            }}
+          >
+            {saving ? "Saving..." : "Continue"}
+          </button>
+        </div>
+
         <div
           style={{
-            background: "rgba(239, 68, 68, 0.2)",
-            border: "1px solid rgba(239, 68, 68, 0.4)",
-            borderRadius: "6px",
-            padding: "12px",
-            marginBottom: "16px",
-            fontSize: "14px",
-            color: "#fca5a5",
+            marginTop: 18,
+            padding: 12,
+            background: "rgba(16,185,129,0.08)",
+            border: "1px solid rgba(16,185,129,0.35)",
+            borderRadius: 10,
+            fontSize: 12,
+            lineHeight: 1.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            color: "#d1fae5",
           }}
         >
-          {error}
+          <Lock size={14} /> Your key stays on this device. Requests go directly
+          to your provider.
         </div>
-      )}
-
-      {/* Action Buttons */}
-      <div style={{ display: "flex", gap: "12px" }}>
-        <button
-          onClick={handleSave}
-          disabled={saving || !apiKey.trim()}
-          style={{
-            flex: 1,
-            background: saving ? "rgba(107, 114, 128, 0.5)" : "#3b82f6",
-            border: "none",
-            color: "white",
-            padding: "14px",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "500",
-            cursor: saving ? "not-allowed" : "pointer",
-            opacity: saving || !apiKey.trim() ? 0.6 : 1,
-          }}
-        >
-          {saving ? "Saving..." : "Start Using Smart Dating Assistant"}
-        </button>
-      </div>
-
-      {/* Privacy Note */}
-      <div
-        style={{
-          marginTop: "24px",
-          padding: "16px",
-          background: "rgba(34, 197, 94, 0.1)",
-          border: "1px solid rgba(34, 197, 94, 0.2)",
-          borderRadius: "8px",
-          fontSize: "12px",
-          lineHeight: "1.4",
-          opacity: 0.8,
-        }}
-        >
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Lock size={14} /> <strong>Privacy:</strong>
-        </span>
-        {" "}Your API key is stored locally on your
-        device and never sent to our servers. All AI requests go directly from
-        your computer to your chosen provider.
       </div>
     </div>
   );

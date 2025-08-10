@@ -27,7 +27,7 @@ module.exports = {
     ignore: [
       /^\/renderer(?!-dist)/, // Ignore renderer source but keep renderer-dist
       /^\/src/, // Ignore src directory entirely (we include built version in build/)
-      /^\/backend/, // Ignore backend directory
+
       /\.ts$/, // Ignore TypeScript source files
       /\.tsx$/, // Ignore TypeScript React source files
       /^\/manual-package\.sh$/,

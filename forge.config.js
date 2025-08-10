@@ -120,7 +120,7 @@ module.exports = {
           owner: "abhi-yo",
           name: "trust-dating",
         },
-        draft: true,
+        draft: false,
         prerelease: false,
         tagPrefix: "v",
         // Read token at runtime (CLI and CI). Ensure GH_TOKEN is set.

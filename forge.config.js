@@ -15,8 +15,8 @@ module.exports = {
     // Base icon (no extension). Ensure trustdating.icns (mac) and trustdating-icon.ico (win) exist
     icon: path.resolve(__dirname, "assets", "icons", "trustdating"),
     // macOS specific options to reduce security issues
-    osxSign: false, // Disable signing for now
-    osxNotarize: false, // Disable notarization
+    osxSign: false,
+    osxNotarize: false,
     protocols: [
       {
         name: "Smart Dating Assistant",
@@ -26,14 +26,20 @@ module.exports = {
     // Include renderer-dist and exclude unnecessary files
     ignore: [
       /^\/renderer(?!-dist)/, // Ignore renderer source but keep renderer-dist
-      /^\/src(?!\/ai)/, // Ignore src directory but keep src/ai
+      /^\/src/, // Ignore src directory entirely (we include built version in build/)
+      /^\/backend/, // Ignore backend directory
       /\.ts$/, // Ignore TypeScript source files
       /\.tsx$/, // Ignore TypeScript React source files
       /^\/manual-package\.sh$/,
       /^\/forge\.config\.js$/,
+      /^\/forge\.dev\.config\.js$/,
       /^\/\.git/,
       /^\/\.vscode/,
       /^\/\.env$/,
+      /^\/assets\/fonts\/DM_Sans\/static/, // Ignore all static font files
+      /^\/assets\/fonts\/DM_Sans\/.*\.ttf$/, // Ignore individual ttf files
+      "!assets/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf", // Keep only variable fonts
+      "!assets/fonts/DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf",
     ],
     // Unpack native modules that need to be accessible at runtime
     asarUnpack: [
@@ -41,6 +47,12 @@ module.exports = {
       "**/node_modules/@google/generative-ai/**/*",
       "**/node_modules/screenshot-desktop/**/*",
       "**/node_modules/node-notifier/**/*",
+    ],
+    // Only include essential production dependencies
+    prune: true,
+    extraResource: [
+      "assets/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf",
+      "assets/fonts/DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf",
     ],
   },
   rebuildConfig: {
@@ -73,19 +85,22 @@ module.exports = {
       name: "@electron-forge/maker-dmg",
       config: {
         name: "Smart Dating Assistant",
-        // Keep DMG title <=27 chars to satisfy appdmg
         title: "Smart Dating Assistant",
-        // DMG window icon (optional but nice)
         icon: path.resolve(__dirname, "assets", "icons", "trustdating.icns"),
-        // Include installation instructions
-        additionalDMGOptions: {
-          files: [
-            {
-              source: path.resolve(__dirname, "INSTALL_MAC.txt"),
-              target: "📖 Installation Instructions.txt",
-            },
-          ],
-        },
+        contents: [
+          { x: 448, y: 344, type: "link", path: "/Applications" },
+          {
+            x: 192,
+            y: 344,
+            type: "file",
+            path: path.resolve(
+              __dirname,
+              "out",
+              "Smart Dating Assistant-darwin-arm64",
+              "Smart Dating Assistant.app"
+            ),
+          },
+        ],
       },
     },
     {

@@ -1,7 +1,7 @@
 {
   "name": "smart-dating-assistant",
   "productName": "Smart Dating Assistant",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Your privacy-focused dating conversation helper",
   "main": "build/main.js",
   "homepage": "https://github.com/abhi-yo/trust-dating",
